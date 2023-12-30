@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
@@ -9,8 +9,6 @@ import { getQueryVariable, createMsg } from '../util/ADS';
 import HeaderModule from '../components/HeaderModule.vue';
 import ScrollModule from '../components/ScrollModule.vue';
 import StatisticsModule from '../components/StatisticsModule.vue';
-import showIcon from '../assets/展开.svg';
-import hideIcon from '../assets/收起.svg';
 import { useTable } from '../composables/useTable.js';
 
 const router = useRouter();
@@ -61,7 +59,11 @@ const handleSearch = () => {
 }
 
 const handleChangeStatistics = (data) => {
-  SearchParameters.value[data.p] = data.v;
+  if(SearchParameters.value[data.p] === data.v){
+    SearchParameters.value[data.p] = '';
+  }else{
+    SearchParameters.value[data.p] = data.v;
+  }
   handleSearch();
 }
 
@@ -160,7 +162,7 @@ onMounted(() => {
         <!-- 分面器 -->
         <aside class="aside" v-show="isShow">
           <ScrollModule />
-          <StatisticsModule :statisticsData="statisticsData" v-on:save="handleChangeStatistics" />
+          <StatisticsModule :statisticsData="statisticsData" :SearchParameters="SearchParameters" v-on:save="handleChangeStatistics" />
         </aside>
         <!-- 谱目列表 -->
         <article class="article" :class="{active: !isShow}">

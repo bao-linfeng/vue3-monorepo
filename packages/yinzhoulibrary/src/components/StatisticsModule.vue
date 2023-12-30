@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
@@ -17,8 +17,8 @@ const { saveProperyValue } = global;
 
 const props = defineProps({
   statisticsData: Object,
+  SearchParameters: Object,
 });
-
 
 const emit = defineEmits(['save']);
 
@@ -28,19 +28,6 @@ const statisticsTitle = ref([
   {'title': '作者', 'isShow': false, 'name': 'listAuthors', 'attribute': 'authors'},
   {'title': '谱籍地', 'isShow': false, 'name': 'listPlace', 'attribute': 'place'},
 ]);
-
-const SearchParameters = ref({
-  'gcKey': '',
-  'genealogyName': '',
-  'surname': '',
-  'hall': '',
-  'publish': '',
-  'authors': '',
-  'place': '',
-  'content': '',
-  'hasImage': '',
-  'hasIndex': '',
-});
 
 const handleToggle = (i) => {
   statisticsTitle.value = statisticsTitle.value.map((ele, index) => {
@@ -53,13 +40,7 @@ const handleToggle = (i) => {
 }
 
 const changeProperty = (p, v) =>{
-  if(SearchParameters.value[p] === v){
-    SearchParameters.value[p] = '';
-  }else{
-    SearchParameters.value[p] = v;
-  }
-  
-  emit('save', {'p': p, 'v': SearchParameters.value[p]});
+  emit('save', {'p': p, 'v': v});
 }
 
 </script>

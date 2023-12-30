@@ -34,61 +34,9 @@ importers:
         specifier: ^4.2.1
         version: 4.5.1(sass@1.69.6)
 
-  packages/genealogyIndexs:
-    dependencies:
-      axios:
-        specifier: ^1.3.4
-        version: 1.6.3
-      element-plus:
-        specifier: ^2.3.8
-        version: 2.4.4(vue@3.4.0)
-      pinia:
-        specifier: ^2.0.33
-        version: 2.1.7(vue@3.4.0)
-      vue:
-        specifier: ^3.2.47
-        version: 3.4.0
-      vue-router:
-        specifier: ^4.1.6
-        version: 4.2.5(vue@3.4.0)
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^4.1.0
-        version: 4.6.0(vite@4.5.1)(vue@3.4.0)
-      sass:
-        specifier: ^1.62.0
-        version: 1.69.6
-      vite:
-        specifier: ^4.2.1
-        version: 4.5.1(sass@1.69.6)
+  packages/jiapuindex: {}
 
-  packages/yinzhoulibrary:
-    dependencies:
-      axios:
-        specifier: ^1.3.4
-        version: 1.6.3
-      element-plus:
-        specifier: ^2.3.8
-        version: 2.4.4(vue@3.4.0)
-      pinia:
-        specifier: ^2.0.33
-        version: 2.1.7(vue@3.4.0)
-      vue:
-        specifier: ^3.2.47
-        version: 3.4.0
-      vue-router:
-        specifier: ^4.1.6
-        version: 4.2.5(vue@3.4.0)
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^4.1.0
-        version: 4.6.0(vite@4.5.1)(vue@3.4.0)
-      sass:
-        specifier: ^1.62.0
-        version: 1.69.6
-      vite:
-        specifier: ^4.2.1
-        version: 4.5.1(sass@1.69.6)
+  packages/yinzhoulibrary: {}
 
 packages:
 
