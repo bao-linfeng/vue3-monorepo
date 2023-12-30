@@ -52,19 +52,13 @@ const SearchParameters = ref({
 });
 const h = ref(200);
 
-const handleSearch = () => {
+const handleSearch = (data) => {
+  // console.log(data)
+  data ? SearchParameters.value[data.p] = SearchParameters.value[data.p] === data.v ? '' : data.v : null;
+
   pagination.reset();
   refresh(SearchParameters.value);
   GCResolverFrontEnd();
-}
-
-const handleChangeStatistics = (data) => {
-  if(SearchParameters.value[data.p] === data.v){
-    SearchParameters.value[data.p] = '';
-  }else{
-    SearchParameters.value[data.p] = data.v;
-  }
-  handleSearch();
 }
 
 const handleClickAction = (row, t) => {
@@ -137,7 +131,7 @@ onMounted(() => {
             <el-radio :label="'1'">有索引</el-radio>
             <el-radio :label="'2'">无索引</el-radio>
           </el-radio-group>
-          <el-button class="w20p" type="primary" @click="handleSearch">检索</el-button>
+          <el-button class="w20p" type="primary" @click="handleSearch('')">检索</el-button>
         </div>
       </section>
       <!-- tab -->
@@ -162,7 +156,7 @@ onMounted(() => {
         <!-- 分面器 -->
         <aside class="aside" v-show="isShow">
           <ScrollModule />
-          <StatisticsModule :statisticsData="statisticsData" :SearchParameters="SearchParameters" v-on:save="handleChangeStatistics" />
+          <StatisticsModule :statisticsData="statisticsData" :SearchParameters="SearchParameters" v-on:save="handleSearch" />
         </aside>
         <!-- 谱目列表 -->
         <article class="article" :class="{active: !isShow}">
