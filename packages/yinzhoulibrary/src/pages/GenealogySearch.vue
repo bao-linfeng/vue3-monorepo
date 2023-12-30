@@ -50,6 +50,18 @@ const SearchParameters = ref({
   'hasImage': '',
   'hasIndex': '',
 });
+
+const searchParameterList = ref([
+  {'label': '姓氏', 'value': 'surname'},
+  {'label': '谱名', 'value': 'genealogyName'},
+  {'label': '谱籍地', 'value': 'place'},
+  {'label': '堂号', 'value': 'hall'},
+  {'label': '作者', 'value': 'authors'},
+  {'label': '出版年', 'value': 'publish'},
+  {'label': '全文关键字', 'value': 'content'},
+  // {'label': '全部影像', 'value': 'hasImage'},
+  // {'label': '全部索引', 'value': 'hasIndex'},
+]);
 const h = ref(200);
 
 const handleSearch = (data) => {
@@ -105,34 +117,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="genealogy-search-wrap">
+  <section class="genealogy-wrap">
     <HeaderModule />
     <img class="image-title" src="../assets/标题.svg" />
     <main class="main">
       <!-- search -->
       <section class="search-wrap">
-        <div class="search-box">
-          <el-input v-model="SearchParameters.surname" class="w20p" placeholder="请输入姓氏" clearable />
-          <el-input v-model="SearchParameters.genealogyName" class="w20p" placeholder="请输入谱名" clearable />
-          <el-input v-model="SearchParameters.place" class="w20p" placeholder="请输入谱籍地" clearable />
-          <el-input v-model="SearchParameters.hall" class="w20p" placeholder="请输入堂号" clearable />
-          <el-input v-model="SearchParameters.authors" class="w20p" placeholder="请输入作者" clearable />
-        </div>
-        <div class="search-box marginT30">
-          <el-input v-model="SearchParameters.publish" class="w20p" placeholder="请输入出版年" clearable />
-          <el-input v-model="SearchParameters.content" class="w20p" placeholder="请输入全文关键字" clearable />
-          <el-radio-group class="w20p" v-model="SearchParameters.hasImage">
-            <el-radio :label="''">全部影像</el-radio>
-            <el-radio :label="'1'">有影像</el-radio>
-            <el-radio :label="'2'">无影像</el-radio>
-          </el-radio-group>
-          <el-radio-group class="w20p" v-model="SearchParameters.hasIndex">
-            <el-radio :label="''">全部索引</el-radio>
-            <el-radio :label="'1'">有索引</el-radio>
-            <el-radio :label="'2'">无索引</el-radio>
-          </el-radio-group>
-          <el-button class="w20p" type="primary" @click="handleSearch('')">检索</el-button>
-        </div>
+        <el-input v-for="(item, index) in searchParameterList" :key="index" v-model="SearchParameters[item.value]" class="w20p" :placeholder="'请输入'+item.label" clearable />
+        <el-radio-group class="w20p" v-model="SearchParameters.hasImage">
+          <el-radio :label="''">全部影像</el-radio>
+          <el-radio :label="'1'">有影像</el-radio>
+          <el-radio :label="'2'">无影像</el-radio>
+        </el-radio-group>
+        <el-radio-group class="w20p" v-model="SearchParameters.hasIndex">
+          <el-radio :label="''">全部索引</el-radio>
+          <el-radio :label="'1'">有索引</el-radio>
+          <el-radio :label="'2'">无索引</el-radio>
+        </el-radio-group>
+        <el-button class="w20p" type="primary" @click="handleSearch('')">检索</el-button>
       </section>
       <!-- tab -->
       <section class="tab-section">
@@ -220,7 +222,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-.genealogy-search-wrap {
+.genealogy-wrap {
   position: relative;
   width: 100%;
   min-height: 100%;
@@ -240,11 +242,11 @@ onMounted(() => {
       padding: 30px;
       background: rgba(248, 248, 248, 0.75) url('../assets/Rectangle.png') 50% 50% no-repeat;
       background-size: cover;
-      .search-box{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+      height: 80px;
+      display: flex;
+      justify-content: space-between;
+      align-content: space-between;
+      flex-wrap: wrap;
     }
     .tab-section{
       position: relative;
