@@ -6,14 +6,12 @@ import { useGlobalStore } from '../store/global.js';
 import { catalog, imageApi, volumeApi, baseURL } from '../util/api';
 import { getQueryVariable, createMsg } from '../util/ADS';
 import { ElLoading } from 'element-plus';
+import { useDetail } from '../composables/useDetail.js';
 
 const router = useRouter();
 const global = useGlobalStore();
 const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
 const { saveProperyValue } = global;
-defineProps({
-  msg: String,
-});
 
 const getImageList = async () => {
   const loading = ElLoading.service({
@@ -68,23 +66,6 @@ const getVolumeList = async () => {
       ele.value = ele._key;
       return ele;
     });
-  }else{
-    createMsg(result.msg);
-  }
-};
-
-const getCatalogAnalysisResult = async () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
-  });
-  const result = await catalog.getCatalogAnalysisResult({
-    'gcKey': dataKey.value,
-  });
-  loading.close();
-  if(result.status == 200){
-    analysisList.value = result.data;
   }else{
     createMsg(result.msg);
   }
@@ -172,25 +153,22 @@ const imageSearchSingleGC = async (content) => {
   }
 };
 
-const dataKey = ref('');
-const genealogyName = ref('');
+const dataKey = ref(getQueryVariable('id'));
+const genealogyName = ref(getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '');
 const imageList = ref({});
 const volumeKey = ref(1);
 const page = ref(1);
 const currentPage = ref(1);
 const total = ref(100);
 const imageDetail = ref('');
-const isText = ref('');
+const isText = ref(getQueryVariable('isText'));
 const volumeList = ref([]);
 const goBack = () => {
   router.push('/GenealogyDetail?id='+dataKey.value);
 }
 
-const analysis = ref('');
-const analysisList = ref([]);
-
 const vertical = ref(true);
-const keyWord = ref('');
+const keyWord = ref(getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '');
 const textKey = ref('');
 const textList = ref([]);
 const textAll = ref('');
@@ -252,19 +230,17 @@ watch(volumeKey, (nv, ov) => {
   getImageList();
 });
 
-const imageH = ref(1080);
+const imageH = ref(window.innerHeight - 60 - 60 - 60);
+const analysis = ref('');
+const [analysisList] = useDetail(catalog.getCatalogAnalysisResult, {'gcKey': dataKey.value},
+  {
+    immediate: isText.value == 1 ? true : false
+  });
 
 onMounted(() => {
-  imageH.value = window.innerHeight - 60 - 60 - 60;
-  dataKey.value = getQueryVariable('id');
-  genealogyName.value = getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '';
   volumeKey.value = getQueryVariable('volumeKey');
-  page.value = Number(getQueryVariable('page'));
-  currentPage.value = page.value;
-  isText.value = getQueryVariable('isText');
-  keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
+  currentPage.value = page.value = Number(getQueryVariable('page'));
   getVolumeList();
-  isText.value == 1 ? getCatalogAnalysisResult() : null;
   keyWord.value ? handleSearch() : null;
 });
 

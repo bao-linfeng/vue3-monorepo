@@ -14,7 +14,7 @@ const global = useGlobalStore();
 const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
 const { saveProperyValue } = global;
 
-const dataKey = ref('');
+const dataKey = ref(getQueryVariable('id'));
 const field_main = ref([
   {'fieldMeans': '姓氏', 'fieldName': 'surname'},
   {'fieldMeans': '出版年', 'fieldName': 'publish'},
@@ -28,8 +28,6 @@ const field_main = ref([
 const handleView = (i) => {
   window.open('/ImageView?id='+dataKey.value+'&genealogyName='+detail.value.genealogyName+'&volumeKey='+detail.value.firstVolumeKey+'&page=1&isText='+i);
 }
-
-dataKey.value = getQueryVariable('id');
 
 const [detail, refresh, loading] = useDetail(catalog.GCDetailFrontEnd, {'gcKey': dataKey.value},
   {

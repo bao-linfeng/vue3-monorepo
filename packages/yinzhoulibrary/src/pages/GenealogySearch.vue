@@ -41,7 +41,7 @@ const statisticsData = ref({
 const SearchParameters = ref({
   'gcKey': '',
   'genealogyName': '',
-  'surname': '',
+  'surname': getQueryVariable('surname') ? decodeURIComponent(getQueryVariable('surname')) : '',
   'hall': '',
   'publish': '',
   'authors': '',
@@ -60,7 +60,7 @@ const searchParameterList = ref([
   {'label': '出版年', 'value': 'publish'},
   {'label': '全文关键字', 'value': 'content'},
 ]);
-const h = ref(200);
+const h = ref(1100);
 
 const handleSearch = (data) => {
   data ? SearchParameters.value[data.p] = SearchParameters.value[data.p] === data.v ? '' : data.v : null;
@@ -93,8 +93,6 @@ const tabList = ref([
 
 const isShow = ref(true);
 
-SearchParameters.value.surname = getQueryVariable('surname') ? decodeURIComponent(getQueryVariable('surname')) : '';
-
 const [tableData, refresh, loading, pagination] = useTable(catalog.searchGCFrontEnd, SearchParameters.value,
   {
     path: {
@@ -107,7 +105,6 @@ const [tableData, refresh, loading, pagination] = useTable(catalog.searchGCFront
   });
 
 onMounted(() => {
-  h.value = 1100;
   GCResolverFrontEnd();
 });
 
