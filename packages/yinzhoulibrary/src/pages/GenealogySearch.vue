@@ -59,13 +59,10 @@ const searchParameterList = ref([
   {'label': '作者', 'value': 'authors'},
   {'label': '出版年', 'value': 'publish'},
   {'label': '全文关键字', 'value': 'content'},
-  // {'label': '全部影像', 'value': 'hasImage'},
-  // {'label': '全部索引', 'value': 'hasIndex'},
 ]);
 const h = ref(200);
 
 const handleSearch = (data) => {
-  // console.log(data)
   data ? SearchParameters.value[data.p] = SearchParameters.value[data.p] === data.v ? '' : data.v : null;
 
   pagination.reset();

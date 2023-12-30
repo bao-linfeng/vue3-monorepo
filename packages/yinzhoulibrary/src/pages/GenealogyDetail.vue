@@ -7,62 +7,36 @@ import { catalog } from '../util/api';
 import { getQueryVariable, createMsg } from '../util/ADS';
 import { ElLoading } from 'element-plus';
 import HeaderModule from '../components/HeaderModule.vue';
+import { useDetail } from '../composables/useDetail.js';
 
 const router = useRouter();
 const global = useGlobalStore();
 const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
 const { saveProperyValue } = global;
-defineProps({
-  msg: String,
-});
-
-const getDataDetail = async () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
-  });
-  const result = await catalog.GCDetailFrontEnd({
-    'gcKey': dataKey.value,
-  });
-  loading.close();
-  if(result.status == 200){
-    detail.value = result.data;
-  }else{
-    createMsg(result.msg);
-  }
-};
 
 const dataKey = ref('');
-const detail = ref({});
 const field_main = ref([
-  // {'fieldMeans': '谱ID', 'fieldName': '_key'},
-  // {'fieldMeans': '谱名', 'fieldName': 'genealogyName'},
   {'fieldMeans': '姓氏', 'fieldName': 'surname'},
   {'fieldMeans': '出版年', 'fieldName': 'publish'},
   {'fieldMeans': '堂号', 'fieldName': 'hall'},
   {'fieldMeans': '作者', 'fieldName': 'authors'},
-  // {'fieldMeans': '一世祖', 'fieldName': 'firstAncestor'},
-  // {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
-  // {'fieldMeans': '谱籍地(现代)', 'fieldName': 'place'},
-  // {'fieldMeans': '谱籍地(原谱)', 'fieldName': 'LocalityModern'},
   {'fieldMeans': '总卷数', 'fieldName': 'volume'},
   {'fieldMeans': '页数', 'fieldName': 'images'},
-  // {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
-  // {'fieldMeans': '可拍册数', 'fieldName': 'hasVolume'},
-  // {'fieldMeans': '作者', 'fieldName': 'authors'},
-  // {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
-  // {'fieldMeans': '版本类型', 'fieldName': 'version'},
 ]);
 
 const handleView = (i) => {
   window.open('/ImageView?id='+dataKey.value+'&genealogyName='+detail.value.genealogyName+'&volumeKey='+detail.value.firstVolumeKey+'&page=1&isText='+i);
-  // router.push('/ImageView?id='+dataKey.value+'&genealogyName='+detail.value.genealogyName+'&volumeKey='+detail.value.firstVolumeKey+'&page=1&isText='+i);
 }
 
+dataKey.value = getQueryVariable('id');
+
+const [detail, refresh, loading] = useDetail(catalog.GCDetailFrontEnd, {'gcKey': dataKey.value},
+  {
+    immediate: true
+  });
+
 onMounted(() => {
-    dataKey.value = getQueryVariable('id');
-    getDataDetail();
+  
 });
 
 </script>
@@ -102,14 +76,6 @@ onMounted(() => {
             </article>
         </section>
     </main>
-    <footer class="footer">
-        <div class="left">
-            
-        </div>
-        <div class="right">
-            
-        </div>
-    </footer>
   </section>
 </template>
 
@@ -126,8 +92,6 @@ onMounted(() => {
     width: 1400px;
     height: 694px;
     background: rgba(255, 255, 255, 0.7) url('../assets/eave.png') 0 0 repeat-x;
-    // backdrop-filter: blur(10px);
-    // box-shadow: 0 0 10px 0 #fffcf9;
     >.title{
       width: 250px;
       height: 40px;
@@ -191,21 +155,6 @@ onMounted(() => {
           }
         }
       }
-    }
-  }
-  .footer{
-    width: calc(100% - 100px);
-    padding: 0 50px;
-    height: 50px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .left{
-        
-    }
-    .right{
-        display: flex;
-        align-items: center;
     }
   }
 }
