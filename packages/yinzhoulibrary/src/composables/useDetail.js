@@ -4,7 +4,7 @@ import { getQueryVariable, createMsg } from '../util/ADS';
 export function useDetail(api, params, options = {
     immediate: false,
 }) {
-    const data = ref([]);
+    const data = ref('');
     const total = ref(0);
     const loading = ref(false);
 

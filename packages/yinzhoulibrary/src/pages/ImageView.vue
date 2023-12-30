@@ -16,22 +16,21 @@ const { saveProperyValue } = global;
 
 const dataKey = ref(getQueryVariable('id'));
 const genealogyName = ref(getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '');
-// const imageList = ref({});
 const currentPage = ref(1);
-
 const page = ref(1);
-// const total = ref(100);
-
-const imageDetail = ref('');
 const isText = ref(getQueryVariable('isText'));
 const goBack = () => {
   router.push('/GenealogyDetail?id='+dataKey.value);
 }
 
 const vertical = ref(true);
-const textAllList = ref([]);
 // 卷册模块
 const volumeKey = ref(getQueryVariable('volumeKey'));
+// 监控卷册
+watch(volumeKey, (nv, ov) => {
+  console.log(nv);
+  refreshImageList({'vKey': volumeKey.value});
+});
 // 卷册数据
 const [volumeList] = useDetail(volumeApi.volumeListSingleGC, {'gcKey': dataKey.value},
   {
@@ -45,29 +44,19 @@ const [imageList, refreshImageList, , total] = useDetail(imageApi.getImageList, 
   });
 // 监控影像列表
 watch(imageList, () => {
-  getImageDetail(imageList.value[page.value - 1]._key);
+  refreshImageDetail({'iKey': imageList.value[page.value - 1]._key});
+  isText.value == 1 ? imageOcrResult(imageList.value[page.value - 1].serialNumber) : null;
 });
 
-const getImageDetail = async (iKey) => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
+// 影像详情模块
+const [imageDetail, refreshImageDetail] = useDetail(imageApi.getImageDetail, {'iKey': ''},
+  {
+    immediate: false
   });
-  const result = await imageApi.getImageDetail({
-    'iKey': iKey,
-  });
-  loading.close();
-  if(result.status == 200){
-    imageDetail.value = baseURL+'/nbyz'+result.data;
-    isText.value == 1 ? imageOcrResult(imageList.value[page.value - 1].serialNumber) : null;
-  }else{
-    createMsg(result.msg);
-  }
-};
 
+// 全文详情模块
 const OcrResultList = ref([]);
-
+const textAllList = ref([]);
 const imageOcrResult = async (serialNumber) => {
   const loading = ElLoading.service({
     lock: true,
@@ -141,13 +130,10 @@ const changePage = (t) => {
 // 监控下标
 watch(page, (nv, ov) => {
   console.log(nv);
-  getImageDetail(imageList.value[page.value - 1]._key);
+  refreshImageDetail({'iKey': imageList.value[page.value - 1]._key});
+  isText.value == 1 ? imageOcrResult(imageList.value[page.value - 1].serialNumber) : null;
 });
-// 监控卷册
-watch(volumeKey, (nv, ov) => {
-  console.log(nv);
-  refreshImageList({'vKey': volumeKey.value});
-});
+
 
 const imageH = ref(window.innerHeight - 60 - 60 - 60);
 // 目录模块
@@ -196,7 +182,6 @@ const [textList, refreshContent] = useDetail(imageApi.imageSearchSingleGC, {'gcK
   });
 
 onMounted(() => {
-  // volumeKey.value = getQueryVariable('volumeKey');
   currentPage.value = page.value = Number(getQueryVariable('page'));
 });
 
@@ -236,7 +221,7 @@ onMounted(() => {
         <!-- 图片 -->
         <div class="large-image" :class="{active: isText != 1}">
           <div class="large-box">
-            <img class="image" :src="imageDetail" />
+            <img class="image" :src="imageDetail ? (baseURL+'/nbyz'+imageDetail) : ''" />
             <!-- ocr标记 -->
             <p class="text" :class="{active: textAll === item.index}" :title="item.content" :style="{top: item.top, left: item.left, fontSize: item.fontSize}" v-for="(item, index) in textAllList" :key="index" @click="textAll = item.index">{{item.content}}</p>
           </div>
