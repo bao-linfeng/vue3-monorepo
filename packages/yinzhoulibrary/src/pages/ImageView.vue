@@ -13,24 +13,40 @@ const global = useGlobalStore();
 const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
 const { saveProperyValue } = global;
 
-const getImageList = async () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
+
+const dataKey = ref(getQueryVariable('id'));
+const genealogyName = ref(getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '');
+// const imageList = ref({});
+const currentPage = ref(1);
+
+const page = ref(1);
+// const total = ref(100);
+
+const imageDetail = ref('');
+const isText = ref(getQueryVariable('isText'));
+const goBack = () => {
+  router.push('/GenealogyDetail?id='+dataKey.value);
+}
+
+const vertical = ref(true);
+const textAllList = ref([]);
+// 卷册模块
+const volumeKey = ref(getQueryVariable('volumeKey'));
+// 卷册数据
+const [volumeList] = useDetail(volumeApi.volumeListSingleGC, {'gcKey': dataKey.value},
+  {
+    immediate: true
   });
-  const result = await imageApi.getImageList({
-    'vKey': volumeKey.value,
+
+// 影像列表模块
+const [imageList, refreshImageList, , total] = useDetail(imageApi.getImageList, {'vKey': volumeKey.value},
+  {
+    immediate: true
   });
-  loading.close();
-  if(result.status == 200){
-    imageList.value = result.data;
-    total.value = imageList.value.length;
-    getImageDetail(imageList.value[page.value - 1]._key);
-  }else{
-    createMsg(result.msg);
-  }
-};
+// 监控影像列表
+watch(imageList, () => {
+  getImageDetail(imageList.value[page.value - 1]._key);
+});
 
 const getImageDetail = async (iKey) => {
   const loading = ElLoading.service({
@@ -45,27 +61,6 @@ const getImageDetail = async (iKey) => {
   if(result.status == 200){
     imageDetail.value = baseURL+'/nbyz'+result.data;
     isText.value == 1 ? imageOcrResult(imageList.value[page.value - 1].serialNumber) : null;
-  }else{
-    createMsg(result.msg);
-  }
-};
-
-const getVolumeList = async () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
-  });
-  const result = await volumeApi.volumeListSingleGC({
-    'gcKey': dataKey.value,
-  });
-  loading.close();
-  if(result.status == 200){
-    volumeList.value = result.data.map((ele) => {
-      ele.label = ele.volumeNumber+'('+ele.internalSerialNumber+')';
-      ele.value = ele._key;
-      return ele;
-    });
   }else{
     createMsg(result.msg);
   }
@@ -129,25 +124,7 @@ const imageOcrResult = async (serialNumber) => {
   }
 };
 
-const dataKey = ref(getQueryVariable('id'));
-const genealogyName = ref(getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '');
-const imageList = ref({});
-const volumeKey = ref(1);
-const currentPage = ref(1);
-
-const page = ref(1);
-const total = ref(100);
-
-const imageDetail = ref('');
-const isText = ref(getQueryVariable('isText'));
-const volumeList = ref([]);
-const goBack = () => {
-  router.push('/GenealogyDetail?id='+dataKey.value);
-}
-
-const vertical = ref(true);
-const textAllList = ref([]);
-
+// 切换页码
 const changePage = (t) => {
   if(t === 'prev'){
     if(page.value >= 2){
@@ -161,15 +138,15 @@ const changePage = (t) => {
     page.value = Number(currentPage.value);
   }
 }
-
+// 监控下标
 watch(page, (nv, ov) => {
   console.log(nv);
   getImageDetail(imageList.value[page.value - 1]._key);
 });
-
+// 监控卷册
 watch(volumeKey, (nv, ov) => {
   console.log(nv);
-  getImageList();
+  refreshImageList({'vKey': volumeKey.value});
 });
 
 const imageH = ref(window.innerHeight - 60 - 60 - 60);
@@ -219,9 +196,8 @@ const [textList, refreshContent] = useDetail(imageApi.imageSearchSingleGC, {'gcK
   });
 
 onMounted(() => {
-  volumeKey.value = getQueryVariable('volumeKey');
+  // volumeKey.value = getQueryVariable('volumeKey');
   currentPage.value = page.value = Number(getQueryVariable('page'));
-  getVolumeList();
 });
 
 </script>
@@ -248,8 +224,8 @@ onMounted(() => {
             <el-option
               v-for="(item,index) in volumeList"
               :key="index"
-              :label="item.label"
-              :value="item.value">
+              :label="item.volumeNumber+'('+item.internalSerialNumber+')'"
+              :value="item._key">
             </el-option>
           </el-select>
         </div>
