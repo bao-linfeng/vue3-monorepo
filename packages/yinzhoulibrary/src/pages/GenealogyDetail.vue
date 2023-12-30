@@ -22,6 +22,7 @@ const field_main = ref([
   {'fieldMeans': '作者', 'fieldName': 'authors'},
   {'fieldMeans': '总卷数', 'fieldName': 'volume'},
   {'fieldMeans': '页数', 'fieldName': 'images'},
+  {'fieldMeans': '摘要', 'fieldName': 'explain'},
 ]);
 
 const handleView = (i) => {
@@ -59,20 +60,12 @@ onMounted(() => {
                 <img class="place" src="../assets/place.svg" />
                 <p>{{detail.place}}</p>
               </div>
-              <div class="detail-box">
-                <ul class="detail-ul">
-                  <li class="li" v-for="(item, index) in field_main" :key="index">
-                    <p>{{item.fieldMeans}}</p>
-                    <span>{{detail[item.fieldName]}}</span>
-                  </li>
-                </ul>
-                <ul class="detail-ul">
-                  <li class="li">
-                    <p>摘要</p>
-                    <span>{{detail.explain}}</span>
-                  </li>
-                </ul>
-              </div>
+              <ul class="detail-box">
+                <li class="li" v-for="(item, index) in field_main" :key="index">
+                  <p>{{item.fieldMeans}}</p>
+                  <span>{{detail[item.fieldName]}}</span>
+                </li>
+              </ul>
             </article>
         </section>
     </main>
@@ -138,19 +131,21 @@ onMounted(() => {
           }
         }
         .detail-box{
+          width: 100%;
+          height: 372px;
           display: flex;
-          .detail-ul{
+          flex-wrap: wrap;
+          flex-direction: column;
+          .li{
             width: 50%;
-            .li{
-              display: flex;
-              align-items: center;
-              font-size: 22px;
-              margin-top: 30px;
-              p{
-                font-weight: bold;
-                margin-right: 5px;
-                width: 80px;
-              }
+            display: flex;
+            align-items: center;
+            font-size: 22px;
+            margin-top: 30px;
+            p{
+              font-weight: bold;
+              margin-right: 5px;
+              width: 80px;
             }
           }
         }
