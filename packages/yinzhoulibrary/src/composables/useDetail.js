@@ -7,9 +7,9 @@ export function useDetail(api, params, options = {
     const data = ref([]);
     const loading = ref(false);
 
-    const refresh = () => {
+    const refresh = (extraData = params) => {
         loading.value = true;
-        return api(params).then((res) => {
+        return api(extraData).then((res) => {
             loading.value = false;
             if(res.status == 200){
                 data.value = res.data;

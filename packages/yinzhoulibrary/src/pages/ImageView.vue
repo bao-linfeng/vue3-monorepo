@@ -129,37 +129,15 @@ const imageOcrResult = async (serialNumber) => {
   }
 };
 
-const imageSearchSingleGC = async (content) => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
-  });
-  const result = await imageApi.imageSearchSingleGC({
-    'gcKey': dataKey.value,
-    'content': content,
-  });
-  loading.close();
-  if(result.status == 200){
-    textList.value = result.data.map((ele, index) => {
-      if(index === 0){
-        textAll.value = ele.index;
-        textKey.value = ele.content+'-'+ele.volumeNumber+'-'+ele.pageNumber+'页';
-      }
-      return ele;
-    });
-  }else{
-    createMsg(result.msg);
-  }
-};
-
 const dataKey = ref(getQueryVariable('id'));
 const genealogyName = ref(getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '');
 const imageList = ref({});
 const volumeKey = ref(1);
-const page = ref(1);
 const currentPage = ref(1);
+
+const page = ref(1);
 const total = ref(100);
+
 const imageDetail = ref('');
 const isText = ref(getQueryVariable('isText'));
 const volumeList = ref([]);
@@ -168,18 +146,7 @@ const goBack = () => {
 }
 
 const vertical = ref(true);
-const keyWord = ref(getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '');
-const textKey = ref('');
-const textList = ref([]);
-const textAll = ref('');
 const textAllList = ref([]);
-const handleSearch = () => {
-  if(!keyWord.value){
-    textList.value = [];
-  }else{
-    imageSearchSingleGC(keyWord.value);
-  }
-}
 
 const changePage = (t) => {
   if(t === 'prev'){
@@ -190,33 +157,8 @@ const changePage = (t) => {
     if(page.value < total.value){
       currentPage.value = page.value = page.value + 1;
     }
-  }
-}
-
-const handleClickAnalysis = (data) => {
-  analysis.value = data.title;
-  imageList.value.forEach((ele, index) => {
-    if(ele.serialNumber === data.startSerialNumber){
-      page.value = currentPage.value = index + 1;
-    }
-  });
-}
-
-const handleInputChange = (e) => {
-  page.value = Number(currentPage.value);
-}
-
-const handleClickText = (data) => {
-  if(data.vKey === volumeKey.value){
-    if(data.pageNumber === page.value){
-      textAll.value = data.index;
-    }else{
-      textAll.value = data.index;
-      page.value = currentPage.value = data.pageNumber;
-      textKey.value = data.content+'-'+data.volumeNumber+'-'+data.pageNumber+'页';
-    }
   }else{
-
+    page.value = Number(currentPage.value);
   }
 }
 
@@ -231,8 +173,47 @@ watch(volumeKey, (nv, ov) => {
 });
 
 const imageH = ref(window.innerHeight - 60 - 60 - 60);
+// 目录模块
 const analysis = ref('');
+// 目录点击
+const handleClickAnalysis = (data) => {
+  analysis.value = data.title;
+  imageList.value.forEach((ele, index) => {
+    if(ele.serialNumber === data.startSerialNumber){
+      page.value = currentPage.value = index + 1;
+    }
+  });
+}
+// 目录数据
 const [analysisList] = useDetail(catalog.getCatalogAnalysisResult, {'gcKey': dataKey.value},
+  {
+    immediate: isText.value == 1 ? true : false
+  });
+
+// 全文模块
+const keyWord = ref(getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '');
+const textKey = ref('');
+const textAll = ref('');
+// 全文检索
+const handleSearch = () => {
+  if(!keyWord.value){
+    textList.value = [];
+  }else{
+    refreshContent({'gcKey': dataKey.value, 'content': keyWord.value});
+  }
+}
+// 全文点击
+const handleClickText = (data) => {
+  if(data.vKey === volumeKey.value){
+    data.pageNumber === page.value ? null : page.value = currentPage.value = data.pageNumber;
+    textAll.value = data.index;
+    textKey.value = data.content+'-'+data.volumeNumber+'-'+data.pageNumber+'页';
+  }else{
+
+  }
+}
+// 全文数据
+const [textList, refreshContent] = useDetail(imageApi.imageSearchSingleGC, {'gcKey': dataKey.value, 'content': keyWord.value},
   {
     immediate: isText.value == 1 ? true : false
   });
@@ -241,7 +222,6 @@ onMounted(() => {
   volumeKey.value = getQueryVariable('volumeKey');
   currentPage.value = page.value = Number(getQueryVariable('page'));
   getVolumeList();
-  keyWord.value ? handleSearch() : null;
 });
 
 </script>
@@ -308,7 +288,7 @@ onMounted(() => {
       <!-- 分页 -->
       <footer class="footer">
         <p class="marginR20">{{page}}/{{total}} 跳转至</p>
-        <el-input class="w150 input-center" v-model="currentPage" @change="handleInputChange"  />
+        <el-input class="w150 input-center" v-model="currentPage" @keyup.enter="changePage"  />
       </footer>
     </section>
   </section>
