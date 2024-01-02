@@ -2,6 +2,10 @@ import axios from 'axios';
 let baseURL = 'https://nbyzdata.qingtime.cn';
 let uploadFileURL = '';
 
+if(window.location.origin.indexOf('nbyz.1jiapu.com') > -1){
+  baseURL = 'https://nbyzdata.1jiapu.com'
+}
+
 axios.interceptors.response.use(
   (response) => {
     switch (response.data.statusCode || response.data.status) {

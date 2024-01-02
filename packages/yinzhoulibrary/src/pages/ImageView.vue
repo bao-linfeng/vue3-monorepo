@@ -16,8 +16,8 @@ const { saveProperyValue } = global;
 
 const dataKey = ref(getQueryVariable('id'));
 const genealogyName = ref(getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '');
-const currentPage = ref(1);
-const page = ref(1);
+const currentPage = ref(Number(getQueryVariable('page')));
+const page = ref(Number(getQueryVariable('page')));
 const isText = ref(getQueryVariable('isText'));
 const goBack = () => {
   router.push('/GenealogyDetail?id='+dataKey.value);
@@ -178,11 +178,11 @@ const handleClickText = (data) => {
 // 全文数据
 const [textList, refreshContent] = useDetail(imageApi.imageSearchSingleGC, {'gcKey': dataKey.value, 'content': keyWord.value},
   {
-    immediate: isText.value == 1 ? true : false
+    immediate: isText.value == 1 && keyWord.value ? true : false
   });
 
 onMounted(() => {
-  currentPage.value = page.value = Number(getQueryVariable('page'));
+  
 });
 
 </script>
@@ -418,7 +418,7 @@ onMounted(() => {
         height: calc(100% - 200px);
         overflow-y: auto;
         &.active{
-          overflow-y: hidden;
+          overflow-y: auto;
           overflow-x: auto;
           display: flex;
           flex-direction: row-reverse;

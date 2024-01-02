@@ -49,7 +49,7 @@ onMounted(() => {
             <aside class="aside">
               <img class="cover" src="../assets/book-detail.png" />
               <p class="name">{{detail.genealogyName}}</p>
-              <el-button v-if="detail.hasIndex == 1" class="btn" type="primary" @click="handleView('1')"><img class="icon" src="../assets/影像.svg"><i>全文</i></el-button>
+              <el-button v-if="detail.hasIndex == 1" class="btn" type="primary" @click="handleView('1')"><img class="icon" src="../assets/全文.svg"><i>全文</i></el-button>
               <el-button v-if="detail.hasImage == 1" class="btn" type="primary" @click="handleView('')"><img class="icon" src="../assets/影像.svg"><i>影像</i></el-button>
             </aside>
             <article class="article">

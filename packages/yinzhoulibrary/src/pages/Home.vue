@@ -19,14 +19,17 @@ const goRouter = () => {
 
 <template>
   <section class="home-wrap">
-    <img class="title" src="../assets/标题.png" />
-    <i class="line"></i>
-    <main class="main">
-      <img class="search-title" src="../assets/检索标题.svg" />
-      <div class="search-box">
-        <input class="search" type="text" v-model="surname" @keyup.enter="goRouter" placeholder="请输入姓氏" />
-      </div>
-    </main>
+    <img class="gif" src="../assets/开场优化.gif" />
+    <section class="home">
+      <img class="title" src="../assets/标题.png" />
+      <i class="line"></i>
+      <main class="main">
+        <img class="search-title" src="../assets/检索标题.svg" />
+        <div class="search-box">
+          <input class="search" type="text" v-model="surname" @keyup.enter="goRouter" placeholder="请输入姓氏" />
+        </div>
+      </main>
+    </section>
   </section>
 </template>
 
@@ -35,11 +38,19 @@ const goRouter = () => {
   position: relative;
   width: 100%;
   height: 100%;
-  background: url('../assets/背景.png');
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  // background: url('../assets/开场优化.gif');
+  // background-size: cover;
+  overflow: hidden;
+  .home{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   .title{
     width: 312px;
   }
@@ -71,6 +82,13 @@ const goRouter = () => {
         text-align: center;
       }
     }
+  }
+  .gif{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 0;
   }
 }
 ::-webkit-input-placeholder {

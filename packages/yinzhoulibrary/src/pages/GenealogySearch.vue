@@ -81,7 +81,7 @@ const handleClickAction = (row, t) => {
     window.open('/ImageView?id='+row._key+'&genealogyName='+row.genealogyName+'&volumeKey='+row.firstVolumeKey+'&page='+(row.indexImagePage + 1)+'&content='+SearchParameters.value.content+'&isText=1');
   }
   if(t === 'tree'){
-    window.open('/Relationmap?id='+row._key);
+    window.open('/Relationmap?id='+row._key+'&content='+SearchParameters.value.content);
   }
 }
 

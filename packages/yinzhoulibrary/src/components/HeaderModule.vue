@@ -42,7 +42,7 @@ onMounted(() => {
       <nav class="nav">
         <router-link to="/GenealogySearch">检索中心</router-link>
         <router-link v-if="token" class="marginL20" to="/GenealogyManage">管理中心</router-link>
-        <a class="btn marginL20" @click="handleLogin">{{token ? userInfo.account : '登录'}}</a>
+        <a class="btn marginL20 active" @click="handleLogin">{{token ? userInfo.account : '登录'}}</a>
       </nav>
     </header>
     <LoginModule v-if="isLogin" v-on:close="isLogin = false" />
@@ -63,6 +63,9 @@ onMounted(() => {
     .nav{
         a{
             color: #C9A470;
+            &.active{
+                cursor: auto;
+            }
         }
     }
 }

@@ -848,7 +848,13 @@ const getTotalTree = async () => {
          'nodes': result.result.nodes,
          'links': result.result.links,
       };
-      initZoomCharts(zoomChartsData.value, root.value);
+
+      if(keyWord.value){
+         handleSearch();
+         handleClickNode(nodes.value[0]);
+      }else{
+         initZoomCharts(zoomChartsData.value, root.value);
+      }
    }else{
       createMsg(result.msg);
    }
@@ -906,6 +912,7 @@ const handleSearch = () => {
 
 onMounted(() => {
    dataKey.value = getQueryVariable('id');
+   keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
    getGCPedigreeListFrontEnd();
 });
 
@@ -1021,6 +1028,7 @@ onMounted(() => {
    height: calc(100% - 182px);
    margin-top: 150px;
    color: #7C4F11;
+   overflow-y: auto;
    .node-detail{
       display: flex;
       align-items: center;

@@ -162,8 +162,8 @@ const handleClickAction = (row, t) => {
   }
   if(t === 'template'){
     initDownloadExcel([
-      ['谱名', '姓氏', '出版年', '公元年', '堂号', '作者', '作者职务', '现代地名', '始迁祖', '先祖名人', '版本类型', '总卷数', '实拍册数', '影像页', '说明', '馆藏地', '入库名'],
-      ['甬東包氏支譜', '包', '（清）光緒四年', '1878', '尊樂堂', '不详', '编纂', '浙江省,宁波市,鄞州区', '榮', '業，為一世祖。拯，字希仁，諡孝肅，宋朝人，龍圖閣大學士，為五世祖。', '刻本', '3卷', '3', '289', '世系修錄至第三十五世', '鄞州圖書館', '7001'],
+      ['谱名', '姓氏', '出版年', '公元年', '堂号', '作者', '作者职务', '现代地名', '始迁祖', '先祖名人', '版本类型', '总卷数', '实拍册数', '影像页', '说明', '馆藏地', '入库名', '缺卷', '单双页'],
+      ['甬東包氏支譜', '包', '（清）光緒四年', '1878', '尊樂堂', '不详', '编纂', '浙江省,宁波市,鄞州区', '榮', '業，為一世祖。拯，字希仁，諡孝肅，宋朝人，龍圖閣大學士，為五世祖。', '刻本', '3卷', '3', '289', '世系修錄至第三十五世', '鄞州圖書館', '7001', '0', '单'],
     ], '鄞州图书馆谱目表头');
   }
   if(t === 'batchLoad'){
@@ -356,13 +356,15 @@ onMounted(() => {
         :height="h"
         style="width: 100%">
         <el-table-column prop="_key" label="谱ID" width="120" align="center" />
-        <el-table-column prop="genealogyName" label="谱名" min-width="120" align="center" />
+        <el-table-column prop="genealogyName" label="谱名" min-width="150" align="center" />
         <el-table-column prop="surname" label="姓氏" width="120" align="center" />
         <el-table-column prop="hall" label="堂号" width="120" align="center" />
         <el-table-column prop="publish" label="出版年" width="140" align="center" />
         <el-table-column prop="place" label="谱籍地" min-width="120" align="center" />
         <el-table-column prop="authors" label="作者" width="120" align="center" />
         <el-table-column prop="volume" label="总卷数" width="120" align="center" />
+        <el-table-column prop="lostVolume" label="缺卷" width="120" align="center" />
+        <el-table-column prop="singleOrTwo" label="单双页" width="120" align="center" />
         <el-table-column prop="hasVolume" label="实拍册数" width="120" align="center" />
         <el-table-column prop="images" label="影像页" width="120" align="center" />
         <el-table-column prop="explain" label="说明" width="120" align="center" />
