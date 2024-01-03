@@ -54,6 +54,12 @@ const handleInputChange = (e) => {
 }
 
 function handleUploadImage(){
+    if(!uploadLength.value){
+        return ElMessage({
+            message: '请选择上传影像',
+            type: 'warning',
+        });
+    }
     if(uploadIndex.value < uploadLength.value){
         let fd = new FormData(), name = form.value.gcKey+'_'+form.value.internalSerialNumber+'_'+files[uploadIndex.value].name;
         fd.append('file', new File([files[uploadIndex.value]], name));

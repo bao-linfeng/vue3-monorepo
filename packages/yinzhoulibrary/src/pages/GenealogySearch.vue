@@ -91,6 +91,11 @@ const tabList = ref([
   {'label': '图列', 'value': 1},
 ]);
 
+const changeTab = (data) => {
+  tab.value = data.value;
+  router.push('/GenealogySearch?tab='+tab.value);
+}
+
 const isShow = ref(true);
 
 const [tableData, refresh, loading, pagination] = useTable(catalog.searchGCFrontEnd, SearchParameters.value,
@@ -105,6 +110,7 @@ const [tableData, refresh, loading, pagination] = useTable(catalog.searchGCFront
   });
 
 onMounted(() => {
+  tab.value = Number(getQueryVariable('tab')) || 0;
   GCResolverFrontEnd();
 });
 
@@ -140,7 +146,7 @@ onMounted(() => {
           </div>
         </div>
         <ul class="tab-ul">
-          <li :class="{active: tab === item.value}" v-for="(item, index) in tabList" :key="index" @click="tab = item.value">
+          <li :class="{active: tab === item.value}" v-for="(item, index) in tabList" :key="index" @click="changeTab(item)">
             <img v-if="index === 0" src="../assets/列表.svg" />
             <img v-if="index === 1" src="../assets/图库.svg" />
             <i class="marginL5">{{item.label}}</i>
@@ -180,7 +186,7 @@ onMounted(() => {
                 <button class="btn" @click="handleClickAction(scope.row, 'look')">查看</button>
                 <button class="btn" v-if="scope.row.hasImage == 1" @click="handleClickAction(scope.row, 'image')">影像</button>
                 <button class="btn" v-if="scope.row.hasIndex == 1" @click="handleClickAction(scope.row, 'text')">全文</button>
-                <button class="btn" v-if="scope.row.hasTree == 1" @click="handleClickAction(scope.row, 'tree')">节点</button>
+                <button class="btn" v-if="scope.row.hasTreeNew == 1" @click="handleClickAction(scope.row, 'tree')">节点</button>
               </template>
             </el-table-column>
           </el-table>

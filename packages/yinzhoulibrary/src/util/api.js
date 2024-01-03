@@ -197,6 +197,12 @@ const pedigreeApi = {
   getTotalTree(param) {// 获取谱系分支树数据
     return request.get('/pedigree/totalTree', param);
   },
+  getPositionNode(param) {// 定位节点
+    return request.get('/pedigree/positionNode', param);
+  },
+  getFiveGeneration(param){// 获取5代数据
+		return request.get('/pedigree/fiveGeneration', param);
+	},
 };
 
 export { 

@@ -691,15 +691,85 @@ const zoomChartsData = ref({
    ]
 });
 
+const getTotalTree = async () => {
+   const loading = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.7)',
+   });
+   const result = await pedigreeApi.getTotalTree({
+      'pedigreeKey': pedigreeKey.value,
+   });
+   loading.close();
+   if(result.status == 200){
+      result.result.nodes.forEach((ele) => {
+         ele.name = ele.Fullname ? ele.Fullname : ele.Given;
+         ele.id = ele._key;
+      });
+      result.result.links.forEach((ele) => {
+         ele.type = ele.type == 1 ? '儿子' : ele.type == 2 ? '女儿' : ele.type == 3 ? '配偶' : '';
+      });
+      rootKey.value = result.result.rootKey;
+      zoomChartsData.value = {
+         'nodes': result.result.nodes,
+         'links': result.result.links,
+      };
+
+      if(keyWord.value){
+         handleSearch();
+         handleClickNode(nodes.value[0]);
+      }else{
+         initZoomCharts(zoomChartsData.value, rootKey.value);
+      }
+   }else{
+      createMsg(result.msg);
+   }
+};
+
+const getGCPedigreeListFrontEnd = async () => {
+   const loading = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.7)',
+   });
+   const result = await catalog.getGCPedigreeListFrontEnd({
+      'gcKey': dataKey.value,
+   });
+   loading.close();
+   if(result.status == 200){
+      pedigreeList.value = result.result.forEach((ele, index) => {
+         if(index === 0){
+            pedigreeKey.value = ele._key;
+         }
+      });
+      getTotalTree();
+   }else{
+      createMsg(result.msg);
+   }
+};
+
+const dataKey = ref('');
+const pedigreeKey = ref('');
+const pedigreeList = ref([]);
+const rootKey = ref('');
+const detail = ref({});
+const nodes = ref([]);
+const keyWord = ref('');
+
 const netChart = ref('');
-const initZoomCharts = (data, root) => {
-   // netChart.value ? netChart.value.clearFocus() : null;
+const circleRect = ref({
+   w: 0,
+   h: 0,
+   x: 0,
+   y: 0,
+});
+const initZoomCharts = (data, rootKey) => {
    netChart.value ? netChart.value.remove() : null;
    netChart.value = null;
    netChart.value = new NetChart({
       navigation: {
          focusNodeExpansionRadius: 2,
-         initialNodes: [root],
+         initialNodes: [rootKey],
          mode: "focusnodes"
       },
       style: {
@@ -714,9 +784,9 @@ const initZoomCharts = (data, root) => {
          },
          linkStyleFunction: function(link) {        
             // console.log(link);                 
-            link.fillColor = "#7C4F11";  
+            link.fillColor = "#fff";  
             link.label = link.data.type;                  
-            link.labelStyle.textStyle.fillColor = '#7C4F11';
+            link.labelStyle.textStyle.fillColor = '#fff';
             link.labelStyle.padding = 15;
             // link.labelStyle.textStyle.font ='12px Arial';                 
             link.labelStyle.backgroundStyle.fillColor = 'transparent';             
@@ -765,12 +835,12 @@ const initZoomCharts = (data, root) => {
       events: {
          onClick: (event, args) => {
             // console.log(event, args);
-            console.log(event.clickNode);
+            // console.log(event.clickNode);
             //当前点击的节点 
             if(event.clickNode){     
                // netChart.value.clearFocus();
                // netChart.value.addFocusNode(event.clickNode);  
-               detail.value =   event.clickNode.data;                              
+               detail.value = event.clickNode.data;                              
                event.preventDefault();
             }
             //当前点击的关系
@@ -780,11 +850,21 @@ const initZoomCharts = (data, root) => {
          },   
          onDoubleClick: (event, args) => {
             console.log(event.clickNode);
-            // if(event.clickNode){     
-            //    detail.value =   event.clickNode.data;                              
-            //    event.preventDefault();
-            // }
-         }     
+            if(event.clickNode){   
+               console.log(event.clickNode.data._key); 
+               getFiveGeneration(event.clickNode.data._key);                             
+               event.preventDefault();
+            }
+         },
+         onPositionChange: function(args){
+            // console.log(args.nodes[0].shape.hHeight*4, args.nodes[0].shape.hWidth*4, args.nodes[0].shape.x-2*args.nodes[0].shape.hWidth, args.nodes[0].shape.y-2*args.nodes[0].shape.hWidth);    
+            circleRect.value = {
+               w: args.nodes[0].shape.hHeight*4,
+               h: args.nodes[0].shape.hWidth*4,
+               x: args.nodes[0].shape.x-2*args.nodes[0].shape.hWidth,
+               y: args.nodes[0].shape.y-2*args.nodes[0].shape.hWidth,
+            }               
+         },    
       },
    })
 }
@@ -794,201 +874,193 @@ const nodeStyle = (node) =>{
    node.lineColor = '#ff7963';
    node.lineWidth = 2;  
 
-   if(node.focused){           
-      node.radius = 40;
-      node.lineWidth = 4;  
-   }
-
-   if(node.hovered){
-      node.radius = 35; 
-      node.fillColor = "#f7764d";  
-   } 
-
    node.items = [];
    node.display = "image";           
    node.imageCropping = true;
    node.label = node.data.name;
-   node.labelStyle.padding = 15;       
-   node.labelStyle.textStyle.fillColor = "#7C4F11";                 
+   // node.fillColor = '#7C4F11';
+   node.labelStyle.padding = 10;   
+   node.labelStyle.margin = -30;     
+   node.labelStyle.textStyle.fillColor = "#000";                 
    node.labelStyle.backgroundStyle.fillColor = "transparent";    
    
    if(node.data.imageUrl){
       node.image = node.data.imageUrl;
    }else{
-      node.image = (node.data.Sex == 'female' ? girl : boy);
+      // node.image = (node.data.Sex == 'female' ? girl : boy);
    }
      
    if(node.focused && node.selected) {
       node.label = node.data.name;
    }
 
+   if(node.focused){           
+      node.radius = 40;
+      node.lineWidth = 4;  
+      node.labelStyle.margin = -40;  
+   }
+
+   if(node.hovered){
+      node.radius = 35; 
+      node.labelStyle.margin = -35; 
+      node.fillColor = "#f7764d";  
+   } 
+
    return node;
 }
 
-const getTotalTree = async () => {
+const personList = ref([]);
+// 定位节点
+const getPositionNode = async () => {
    const loading = ElLoading.service({
       lock: true,
       text: 'Loading',
       background: 'rgba(0, 0, 0, 0.7)',
    });
-   const result = await pedigreeApi.getTotalTree({
-      'pedigreeKey': pedigreeKey.value,
+   const result = await pedigreeApi.getPositionNode({
+      'gcKey': dataKey.value,
+      'name': keyWord.value,
+   });
+   loading.close();
+   if(result.status == 200){
+      nodes.value = result.result.map((ele, index) => {
+         if(index === 0){
+            rootKey.value = ele._key;
+         }
+         return ele;
+      });
+      getFiveGeneration(rootKey.value);
+   }else{
+      createMsg(result.msg);
+   }
+};
+
+// 获取5代数据
+const getFiveGeneration = async (id) => {
+   const loading = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.7)',
+   });
+   const result = await pedigreeApi.getFiveGeneration({
+      'personKey': id,
    });
    loading.close();
    if(result.status == 200){
       result.result.nodes.forEach((ele) => {
          ele.name = ele.Fullname ? ele.Fullname : ele.Given;
          ele.id = ele._key;
+         if(ele._key === id){
+            detail.value = ele;
+         }
       });
-      result.result.links.forEach((ele) => {
-         ele.type = ele.type == 1 ? '儿子' : ele.type == 2 ? '女儿' : ele.type == 3 ? '配偶' : '';
-      });
-      root.value = result.result.root;
+
       zoomChartsData.value = {
          'nodes': result.result.nodes,
          'links': result.result.links,
       };
 
-      if(keyWord.value){
-         handleSearch();
-         handleClickNode(nodes.value[0]);
-      }else{
-         initZoomCharts(zoomChartsData.value, root.value);
-      }
+      personList.value = result.result.personList;
+      rootKey.value = id;
+
+      initZoomCharts(zoomChartsData.value, rootKey.value);
    }else{
       createMsg(result.msg);
    }
 };
-
-const getGCPedigreeListFrontEnd = async () => {
-   const loading = ElLoading.service({
-      lock: true,
-      text: 'Loading',
-      background: 'rgba(0, 0, 0, 0.7)',
-   });
-   const result = await catalog.getGCPedigreeListFrontEnd({
-      'gcKey': dataKey.value,
-   });
-   loading.close();
-   if(result.status == 200){
-      pedigreeList.value = result.result.forEach((ele, index) => {
-         if(index === 0){
-            pedigreeKey.value = ele._key;
-         }
-      });
-      getTotalTree();
-   }else{
-      createMsg(result.msg);
-   }
-};
-
-
-const dataKey = ref('');
-const pedigreeKey = ref('');
-const pedigreeList = ref([]);
-const root = ref('');
-const detail = ref({});
-const nodes = ref([]);
-const keyWord = ref('');
 
 const handleClickNode = (data) => {
-   root.value = data._key;
-   detail.value = data;
-   // netChart.value ? netChart.value.reloadData() : null;
-   initZoomCharts(zoomChartsData.value, root.value);
+   rootKey.value = data._key;
+   detail.value = zoomChartsData.value.nodes.filter((ele) => {
+      return ele._key === data._key;
+   });
+   initZoomCharts(zoomChartsData.value, rootKey.value);
 }
 
 const handleSearch = () => {
-   // console.log(keyWord.value);
    if(!keyWord.value){
       nodes.value = [];
    }else{
-      nodes.value = zoomChartsData.value.nodes.filter((ele, index) => {
-         return (ele.Fullname && ele.Fullname.indexOf(keyWord.value) > -1);
-      });
-      // console.log(nodes.value);
+      getPositionNode();
    }
 }
 
 onMounted(() => {
    dataKey.value = getQueryVariable('id');
    keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
-   getGCPedigreeListFrontEnd();
+   keyWord.value ? getPositionNode() : null;
 });
 
 </script>
 
 <template>
-  <section class="relationmap-wrap">
-    <main class="main" id="relationmap">
-        
-    </main>
-    <aside class="aside">
-      <div class="search-box">
-         <el-input class="search" v-model="keyWord" placeholder="请输入关键字" @change="handleSearch" clearable />
-         <ul class="nodeList style1" v-if="nodes.length">
-            <li v-for="(item, index) in nodes" :class="{active: root == item._key}" :key="index" @click="handleClickNode(item)">{{item.Fullname}}</li>
-         </ul>
-      </div>
-      <article class="article style1" v-if="detail._key">
-         <div class="node-detail" v-if="detail.Fullname">
-            <label for="">全名</label>
-            <i>{{detail.Fullname}}</i>
+   <section class="relationmap-wrap">
+      <i class="focus-circle" :style="{width: circleRect.w+'px', height: circleRect.h+'px', left: circleRect.x+'px', top: circleRect.y+'px'}"></i>
+      <main class="main" id="relationmap">
+         
+      </main>
+      <aside class="aside">
+         <div class="search-box">
+            <el-input class="search" v-model="keyWord" placeholder="请输入关键字" @change="handleSearch" clearable />
+            <ul class="nodeList style1" v-if="nodes.length">
+               <li v-for="(item, index) in nodes" :class="{active: rootKey == item._key}" :key="index" @click="handleClickNode(item)">{{item.Fullname}}</li>
+            </ul>
          </div>
-         <div class="node-detail" v-if="detail.Surname">
-            <label for="">姓氏</label>
-            <i>{{detail.Surname}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Given">
-            <label for="">名</label>
-            <i>{{detail.Given}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Sex">
-            <label for="">性别</label>
-            <i>{{detail.Sex == 'male' ? '男' : '女'}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Spouse">
-            <label for="">配偶</label>
-            <i>{{detail.Spouse}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Zi">
-            <label for="">字</label>
-            <i>{{detail.Zi}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Hao">
-            <label for="">号</label>
-            <i>{{detail.Hao}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Inherit">
-            <label for="">继承</label>
-            <i>{{detail.Inherit}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Hang">
-            <label for="">行</label>
-            <i>{{detail.Hang}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.BirthDate">
-            <label for="">出生日期</label>
-            <i>{{detail.BirthDate}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.DeathDate">
-            <label for="">死亡日期</label>
-            <i>{{detail.DeathDate}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Biography">
-            <label for="">传记</label>
-            <i>{{detail.Biography}}</i>
-         </div>
-         <div class="node-detail" v-if="detail.Alias">
-            <label for="">别名</label>
-            <i>{{detail.Alias}}</i>
-         </div>
-      </article>
-    </aside>
-    <footer class="footer">
-        
-    </footer>
-  </section>
+         <article class="article style1" v-if="detail._key">
+            <div class="node-detail" v-if="detail.Fullname">
+               <h3>{{detail.Fullname}}</h3>
+            </div>
+            <div class="node-detail" v-if="detail.Surname">
+               <label for="">姓氏</label>
+               <i>{{detail.Surname}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.Given">
+               <label for="">名</label>
+               <i>{{detail.Given}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.Sex">
+               <label for="">性别</label>
+               <i>{{detail.Sex == 'male' ? '男' : '女'}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.Zi">
+               <label for="">字</label>
+               <i>{{detail.Zi}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.Hao">
+               <label for="">号</label>
+               <i>{{detail.Hao}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.Hang">
+               <label for="">行</label>
+               <i>{{detail.Hang}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.BirthDate">
+               <label for="">生于</label>
+               <i>{{detail.BirthDate}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.DeathDate">
+               <label for="">卒于</label>
+               <i>{{detail.DeathDate}}</i>
+            </div>
+            <div class="node-detail" v-if="detail.Biography">
+               <label for="">传记</label>
+               <i>{{detail.Biography}}</i>
+            </div>
+            <div class="node-detail marginB30">
+               <label for="">关系</label>
+               <ul class="links-box">
+                  <li v-for="(item, index) in personList" :key="index">
+                     {{item.relation}}
+                     <p>{{item.Fullname}}</p>
+                  </li>
+               </ul>
+            </div>
+         </article>
+      </aside>
+      <footer class="footer">
+         
+      </footer>
+   </section>
 </template>
 
 <style scoped lang="scss">
@@ -996,7 +1068,7 @@ onMounted(() => {
    position: relative;
    width: 100%;
    height: 100%;
-   // background-color: #333;
+   background-color: #333;
    overflow: hidden;
    .header{
 
@@ -1006,32 +1078,47 @@ onMounted(() => {
       width: 100%;
       height: 100%;
    }
+   .focus-circle{
+      position: absolute;
+      opacity: 0.3;
+      background: url('../assets/circle.png') 50% 50% no-repeat;
+      background-size: cover;
+      animation-name: rotate; /* 指定要应用的动画名称 */
+      animation-duration: 2s; /* 设置动画持续时间 */
+      animation-iteration-count: infinite; /* 无限次重复播放动画 */
+      animation-timing-function: linear; /* 线性过渡效果 */
+   }
    .footer{
       position: absolute;
       bottom: 0;
       right: 0;
       width: 200px;
       height: 50px;
-      background-color: #fff;
+      background-color: #333;
    }
+}
+@keyframes rotate {
+  0% { transform: rotate(0deg); } /* 初始状态为不旋转 */
+  100% { transform: rotate(360deg); } /* 结束状态为完全旋转一周（360度）*/
 }
 .aside{
    position: absolute;
-   top: 50px;
+   top: 0;
    right: 0;
-   bottom: 50px;
+   bottom: 0;
    width: 240px;
    background-color: #333;
    padding: 20px;
 }
 .article{
+   position: relative;
    height: calc(100% - 182px);
    margin-top: 150px;
-   color: #7C4F11;
+   color: #fff;
    overflow-y: auto;
    .node-detail{
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       margin-bottom: 10px;
       cursor: pointer;
       label{
@@ -1041,26 +1128,39 @@ onMounted(() => {
       i{
          width: calc(100% - 70px);
       }
+      .links-box{
+         width: calc(100% - 70px);
+         li{
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            p{
+               margin-left: 20px;
+            }
+         }
+      }
    }
 }
 .search-box{
    position: relative;
    width: 100%;
    .search{
-      text-indent: 40px;
+      text-indent: 20px;
    }
    .nodeList{
       position: absolute;
       top: 100%;
       left: 0;
-      padding: 10px 20px;
-      width: calc(100% - 40px);
-      background-color: #fff;
-      box-shadow: 0 0 1px 0 #7C4F11;
+      padding: 0 10px;
+      width: calc(100% - 20px);
+      background-color: transparent;
+      box-shadow: 0 0 1px 0 #fff;
       z-index: 1000;
       max-height: 150px;
       overflow-y: auto;
       border-radius: 5px;
+      color: #fff;
       li{
          height: 30px;
          line-height: 30px;
@@ -1076,5 +1176,8 @@ onMounted(() => {
          }
       }
    }
+}
+.marginB30{
+   margin-bottom: 30px !important;
 }
 </style>

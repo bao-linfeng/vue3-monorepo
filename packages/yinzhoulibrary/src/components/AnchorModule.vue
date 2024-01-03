@@ -70,10 +70,12 @@ onMounted(() => {
     height: 100%;
     background: #353D51;
     .header{
+        position: relative;
         height: 6rem;
         text-align: center;
         color: #fff;
         font-size: 1.2rem;
+        margin: 20px 0 40px 0;
         .logo{
             height: 4rem;
             margin-bottom: 1rem;
@@ -88,7 +90,7 @@ onMounted(() => {
         }
     }
     .nav{
-        height: calc(100% - 10rem);
+        height: calc(100% - 16rem);
         .router{
             height: 4rem;
             display: flex;

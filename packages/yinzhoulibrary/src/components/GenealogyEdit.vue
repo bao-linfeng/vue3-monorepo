@@ -150,7 +150,7 @@ onMounted(() => {
         <header class="header">
             <h3 class="title">{{!dataKey ? '新建' : '编辑'}}</h3>
         </header>
-        <main class="main marginT20">
+        <main class="main style1">
             <el-form :model="form" label-width="90px">
                 <el-form-item label="谱名">
                     <el-input class="w200" type="text" v-model="form.genealogyName" placeholder="请输入谱名" />
@@ -201,7 +201,7 @@ onMounted(() => {
         </main>
         <footer class="footer">
             <el-button type="primary" @click="handleSave">保存</el-button>
-            <el-button @click="close">取消</el-button>
+            <el-button @click="close(false)">取消</el-button>
         </footer>
     </section>
 </template>
@@ -217,13 +217,20 @@ onMounted(() => {
     border-radius: 10px;
     z-index: 10000;
     background-color: #fff;
+    height: calc(100% - 80px);
     .header{
         text-align: center;
+        height: 50px;
+    }
+    .main{
+        height: calc(100% - 100px);
+        overflow-y: auto;
     }
     .footer{
         display: flex;
         justify-content: center;
         align-items: center;
+        height: 50px;
     }
 }
 </style>

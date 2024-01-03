@@ -13,7 +13,7 @@ const global = useGlobalStore();
 const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
 const { saveProperyValue } = global;
 
-const getDataList = async () => {
+const getDataList = async (f = true) => {
   const loading = ElLoading.service({
     lock: true,
     text: 'Loading',
@@ -40,6 +40,7 @@ const getDataList = async () => {
   if(result.status == 200){
     tableData.value = result.result.list;
     total.value = result.result.total;
+    f ? GCStatistics() : null;
   }else{
     createMsg(result.msg);
   }
@@ -126,16 +127,15 @@ const SearchParameters = ref({
   'hasTree': '',
 });
 const page = ref(1);
-const limit = ref(30);
+const limit = ref(20);
 const total = ref(0);
 const tableData = ref([]);
 const h = ref(200);
 const volumeCount = ref(0);
 const imageCount = ref(0);
 const handleSearch = () => {
-    page.value = 1;
-    getDataList();
-    GCStatistics();
+  page.value = 1;
+  getDataList();
 }
 
 const handleClickAction = (row, t) => {
@@ -175,7 +175,7 @@ const handleClickAction = (row, t) => {
 
 const handleCurrentChange = (data) => {
     page.value = data;
-    getDataList();
+    getDataList(false);
 }
 
 const dataRow = ref('');

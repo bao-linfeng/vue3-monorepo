@@ -156,6 +156,14 @@ i{
   --el-color-primary-dark-2: #C9A470 !important;
 }
 
+.search .el-input__wrapper{
+  background-color: transparent;
+}
+
+
+.search .el-input__inner{
+  color: #fff;
+}
 /* zoomcharts */
 .DVSL-font-height{
   display: none !important;

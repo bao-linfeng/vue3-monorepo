@@ -58,7 +58,7 @@ const searchGenealogyName = async (genealogyName) => {
         return ele;
     });
     console.log(gcList.value);
-    isShow.value = true;
+    gcList.value.length ? isShow.value = true : null;
   }else{
     createMsg(result.msg);
   }
@@ -112,8 +112,23 @@ const editSingleVolume = async () => {
 
 const handleSave = () => {
     if(dataKey.value){
+        if(!form.value.volumeNumber){
+            return createMsg('请输入卷名');
+        }
+        if(!form.value.internalSerialNumber){
+            return createMsg('请输入卷序号');
+        }
         editSingleVolume();
     }else{
+        if(!gcKey.value){
+            return createMsg('请输入谱名');
+        }
+        if(!form.value.volumeNumber){
+            return createMsg('请输入卷名');
+        }
+        if(!form.value.internalSerialNumber){
+            return createMsg('请输入卷序号');
+        }
         createSingleVolume();
     }
 }
@@ -161,7 +176,7 @@ onMounted(() => {
                     <div class="search-wrap">
                         <el-input class="input w200" type="text" v-model="form.genealogyName" @change="remoteMethod" placeholder="请输入谱名" clearable />
                         <ul class="select style1" v-show="isShow">
-                            <li v-for="item in gcList" :key="item.value" :label="item.label" :value="item.value" @click="handleClickSelect(item)">{{item.label}}</li>
+                            <li v-for="item in gcList" :key="item.value" :title="item.label" :label="item.label" :value="item.value" @click="handleClickSelect(item)">{{item.label}}</li>
                         </ul>
                     </div>
                 </el-form-item>
@@ -225,6 +240,9 @@ onMounted(() => {
             height: 30px;
             line-height: 30px;
             text-indent: 10px;
+            white-space: nowrap; /* 不换行 */
+            overflow: hidden; /* 超出部分隐藏 */
+            text-overflow: ellipsis; /* 显示省略号 */
             cursor: pointer;
             :hover{
                 color: #409eff;
