@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
 import { catalog, imageApi, volumeApi, baseURL } from '../util/api';
 import { getQueryVariable, createMsg } from '../util/ADS';
-import { ElLoading } from 'element-plus';
+import { ElLoading, ElMessage } from 'element-plus';
 import { useDetail } from '../composables/useDetail.js';
 
 const router = useRouter();
@@ -29,6 +29,9 @@ const volumeKey = ref(getQueryVariable('volumeKey'));
 // 监控卷册
 watch(volumeKey, (nv, ov) => {
   console.log(nv);
+  page.value = 1;
+  currentPage.value = 1;
+  imageDetail.value = '';
   refreshImageList({'vKey': volumeKey.value});
 });
 // 卷册数据
@@ -44,6 +47,12 @@ const [imageList, refreshImageList, , total] = useDetail(imageApi.getImageList, 
   });
 // 监控影像列表
 watch(imageList, () => {
+  if(!imageList.value.length){
+    return ElMessage({
+      message: '该卷册暂无影像',
+      type: 'warning',
+    });
+  }
   refreshImageDetail({'iKey': imageList.value[page.value - 1]._key});
   isText.value == 1 ? imageOcrResult(imageList.value[page.value - 1].serialNumber) : null;
 });
@@ -247,7 +256,7 @@ onMounted(() => {
         <img v-if="page < total" class="prev next" src="../assets/右翻.svg" @click="changePage('next')" />
       </main>
       <!-- 分页 -->
-      <footer class="footer">
+      <footer class="footer" v-if="total">
         <p class="marginR20">{{page}}/{{total}} 跳转至</p>
         <el-input class="w150 input-center" v-model="currentPage" @keyup.enter="changePage"  />
       </footer>
@@ -365,11 +374,11 @@ onMounted(() => {
         cursor: pointer;
         writing-mode: vertical-lr;
         vertical-align: top;
-        // opacity: 0;
-        border: 1px solid #7C4F11;
+        border: 1px solid #f00;
         &.active{
-          // color: #f00;
-          border: 1px solid #f00;
+          border: none;
+          background-color: #ded184;
+          opacity: 0.5;
         }
       }
     }

@@ -6,6 +6,7 @@ export const useGlobalStore = defineStore('global', () => {
   const pathActive = ref('/');
   const token = ref(getValue('token') || '');
   const userInfo = ref(getValue('userInfo') ? JSON.parse(getValue('userInfo')) : {});
+  const isResize = ref(0);
 
   const saveProperyValue = (data, f = false) => {
     switch(data.label){
@@ -17,6 +18,9 @@ export const useGlobalStore = defineStore('global', () => {
         break;
       case 'pathActive':
         pathActive.value = data.value;
+        break;
+      case 'isResize':
+        isResize.value = data.value;
         break;
       default:
         console.log('未定义属性');
@@ -30,6 +34,7 @@ export const useGlobalStore = defineStore('global', () => {
     pathActive,
     token,
     userInfo,
+    isResize,
     saveProperyValue,
   };
 });

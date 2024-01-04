@@ -81,6 +81,9 @@ i{
 .w250{
   width: 250px !important;
 }
+.fontSize36{
+  font-size: 36px !important;
+}
 .inline-block{
   display: inline-block;
 }

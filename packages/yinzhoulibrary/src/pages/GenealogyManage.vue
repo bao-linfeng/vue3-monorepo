@@ -10,7 +10,7 @@ import GenealogyEdit from '../components/GenealogyEdit.vue';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
+const { userInfo, pathActive, orgMemberInfo, token, isResize } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const getDataList = async (f = true) => {
@@ -198,6 +198,7 @@ const handleBatchUpdate = (response, uploadFile, uploadFiles) => {
 
 const uploadType = ref('');
 const handleClickInput = (row, t) => {
+  console.log(row);
   dataRow.value = row;
   uploadType.value = t;
 }
@@ -285,6 +286,10 @@ const hasTreeList = ref([
   {'label': '有节点', 'value': '1'},
   {'label': '无节点', 'value': '2'},
 ]);
+
+watch(isResize, () => {
+  h.value = window.innerHeight - 50 - 50 - 72 - 20 - 20;
+});
 
 onMounted(() => {
   h.value = window.innerHeight - 50 - 50 - 72 - 20 - 20;
@@ -387,13 +392,13 @@ onMounted(() => {
                   <el-button type="primary" size="small">删除</el-button>
               </template>
             </el-popconfirm>
-            <div class="upload-box">
-              <input type="file" id="fileInput" @click="handleClickInput(scope.row, 'project')" @change="handleInputChange" accept=".xml" />
-              <label for="fileInput" class="label">目录解析</label>
+            <div class="upload-box" v-if="scope.row.hasImage == 1">
+              <input type="file" id="fileInput" @change="handleInputChange" accept=".xml" />
+              <label for="fileInput" class="label" @click="handleClickInput(scope.row, 'project')">目录解析</label>
             </div>
             <div class="upload-box">
-              <input type="file" id="tree" @click="handleClickInput(scope.row, 'tree')" @change="handleInputChange" accept=".xml" />
-              <label for="tree" class="label">节点解析</label>
+              <input type="file" id="tree" @change="handleInputChange" accept=".xml" />
+              <label for="tree" class="label" @click="handleClickInput(scope.row, 'tree')">节点解析</label>
             </div>
           </template>
         </el-table-column>

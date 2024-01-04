@@ -39,9 +39,11 @@ const handleSave = () => {
 
 const emit = defineEmits(['close', 'save']);
 const close = () => {
+    isStop.value = true;
     emit('close');
 }
 
+const isShow = ref(true);
 const uploadIndex = ref(0);
 const uploadLength = ref(0);
 let i = 0, l = 0, files = [];
@@ -60,6 +62,13 @@ function handleUploadImage(){
             type: 'warning',
         });
     }
+    if(isStop.value){
+        return ElMessage({
+            message: '已终止上传全文',
+            type: 'warning',
+        });
+    }
+    isShow.value = false;
     if(uploadIndex.value < uploadLength.value){
         let fd = new FormData(), name = form.value.gcKey+'_'+form.value.internalSerialNumber+'_'+files[uploadIndex.value].name;
         fd.append('file', new File([files[uploadIndex.value]], name));
@@ -125,6 +134,8 @@ const hasImage = async () => {
   }
 };
 
+const isStop = ref(false);
+
 onMounted(() => {
     dataKey.value = props.dataRow._key;
     if(dataKey.value){
@@ -151,13 +162,13 @@ onMounted(() => {
                 <el-form-item label="卷序号">
                     <el-input class="w200" type="text" v-model="form.internalSerialNumber" :disabled="true" />
                 </el-form-item>
-                <el-form-item label="文件夹">
+                <el-form-item label="文件夹" v-if="isShow">
                     <div class="upload-wrap">
                         <div class="upload-box">
                             <input type="file" id="folderInput" @change="handleInputChange" accept=".jpg" directory webkitdirectory mozdirectory />
                             <label for="folderInput" class="label">选择文件</label>
                         </div>
-                        <p class="btn marginL10" @click="handleUploadImage">上传</p>
+                        <!-- <p class="btn marginL10" @click="handleUploadImage">上传</p> -->
                     </div>
                 </el-form-item>
             </el-form>
@@ -169,7 +180,7 @@ onMounted(() => {
             </div>
         </div>
         <footer class="footer marginT20">
-            <el-button type="primary" @click="handleSave">保存</el-button>
+            <el-button type="primary" @click="handleUploadImage">上传</el-button>
             <el-button @click="close">取消</el-button>
         </footer>
     </section>

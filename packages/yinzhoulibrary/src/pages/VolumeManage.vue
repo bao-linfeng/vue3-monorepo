@@ -12,7 +12,7 @@ import IndexUpload from '../components/IndexUpload.vue';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
+const { userInfo, pathActive, orgMemberInfo, token, isResize } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const getVolumeList = async () => {
@@ -130,6 +130,10 @@ const handleClose = (data) => {
 const handleBatchUpdate = () => {
 
 }
+
+watch(isResize, () => {
+  h.value = window.innerHeight - 50 - 50 - 72 - 20 - 20;
+});
 
 onMounted(() => {
   h.value = window.innerHeight - 50 - 50 - 72 - 20 - 20;

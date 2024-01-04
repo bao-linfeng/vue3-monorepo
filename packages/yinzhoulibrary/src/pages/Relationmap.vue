@@ -6,8 +6,7 @@ import { useGlobalStore } from '../store/global.js';
 import { catalog, pedigreeApi } from '../util/api';
 import { getQueryVariable, createMsg } from '../util/ADS';
 import { ElLoading } from 'element-plus';
-import boy from '../assets/boy.png';
-import girl from '../assets/girl.svg';
+import cover from '../assets/cover.svg';
 
 const router = useRouter();
 const global = useGlobalStore();
@@ -749,6 +748,7 @@ const getGCPedigreeListFrontEnd = async () => {
 };
 
 const dataKey = ref('');
+const genealogyName = ref();
 const pedigreeKey = ref('');
 const pedigreeList = ref([]);
 const rootKey = ref('');
@@ -775,8 +775,8 @@ const initZoomCharts = (data, rootKey) => {
       style: {
          node: {
             display: "image",
-            lineWidth: 2,
-            lineColor: "#7C4F11",
+            lineWidth: 4,
+            lineColor: "#0EA0B8",
             imageCropping: true
          },
          "nodeStyleFunction": function(node) {
@@ -784,23 +784,20 @@ const initZoomCharts = (data, rootKey) => {
          },
          linkStyleFunction: function(link) {        
             // console.log(link);                 
-            link.fillColor = "#fff";  
+            link.fillColor = "#F8EEDF";  
             link.label = link.data.type;                  
             link.labelStyle.textStyle.fillColor = '#fff';
-            link.labelStyle.padding = 15;
-            // link.labelStyle.textStyle.font ='12px Arial';                 
+            link.labelStyle.padding = 2;
+            link.labelStyle.textStyle.font ='10px SourceHanSerifCN-Regular';  
             link.labelStyle.backgroundStyle.fillColor = 'transparent';             
-            link.labelStyle.backgroundStyle.lineColor = 'transparent';
+            link.labelStyle.backgroundStyle.lineColor = 'transparent';               
+            // link.labelStyle.backgroundStyle.fillColor = '#888683';             
+            // link.labelStyle.backgroundStyle.lineColor = '#f8eedf';
             link.toDecoration = 'arrow';
             link.labelStyle.rotateWithLink = true; //关系label方向顺着线条方向摆放                
-            if (link.hovered) {                       
-               // link.radius = 2;  
-               link.fillColor = "#7C4F11";                       
-            } else{
-               // link.radius = 1;
-            } 
          }
       },
+      area: { height: null },
       container: "relationmap",
       data: {
          preloaded: data,
@@ -816,8 +813,8 @@ const initZoomCharts = (data, rootKey) => {
          }
       },
       layout: {
-         nodeSpacing: 60,
-         mode: 'dynamic',      
+         nodeSpacing: 120,
+         mode: 'radial', //radial dynamic      
       },
       nodeMenu: {
          enabled: false,
@@ -834,13 +831,9 @@ const initZoomCharts = (data, rootKey) => {
       },
       events: {
          onClick: (event, args) => {
-            // console.log(event, args);
-            // console.log(event.clickNode);
             //当前点击的节点 
-            if(event.clickNode){     
-               // netChart.value.clearFocus();
-               // netChart.value.addFocusNode(event.clickNode);  
-               detail.value = event.clickNode.data;                              
+            if(event.clickNode){       
+               detail.value = event.clickNode.data;                        
                event.preventDefault();
             }
             //当前点击的关系
@@ -852,7 +845,7 @@ const initZoomCharts = (data, rootKey) => {
             console.log(event.clickNode);
             if(event.clickNode){   
                console.log(event.clickNode.data._key); 
-               getFiveGeneration(event.clickNode.data._key);                             
+               event.clickNode.data.isMember == 1 ? getFiveGeneration(event.clickNode.data._key) : null;                             
                event.preventDefault();
             }
          },
@@ -871,40 +864,35 @@ const initZoomCharts = (data, rootKey) => {
 
 const nodeStyle = (node) =>{ 
    node.radius = 30;
-   node.lineColor = '#ff7963';
-   node.lineWidth = 2;  
+   node.lineColor = '#0EA0B8';
+   node.lineWidth = 4;  
 
    node.items = [];
    node.display = "image";           
    node.imageCropping = true;
    node.label = node.data.name;
+   node.image = cover;
    // node.fillColor = '#7C4F11';
    node.labelStyle.padding = 10;   
    node.labelStyle.margin = -30;     
    node.labelStyle.textStyle.fillColor = "#000";                 
-   node.labelStyle.backgroundStyle.fillColor = "transparent";    
+   node.labelStyle.backgroundStyle.fillColor = "transparent";   
    
-   if(node.data.imageUrl){
-      node.image = node.data.imageUrl;
-   }else{
-      // node.image = (node.data.Sex == 'female' ? girl : boy);
-   }
-     
-   if(node.focused && node.selected) {
-      node.label = node.data.name;
-   }
-
-   if(node.focused){           
-      node.radius = 40;
-      node.lineWidth = 4;  
-      node.labelStyle.margin = -40;  
+   if(node.data.Sex != 'male'){
+      node.lineColor = '#ff7963';
    }
 
    if(node.hovered){
       node.radius = 35; 
+      node.lineWidth = 5;  
       node.labelStyle.margin = -35; 
-      node.fillColor = "#f7764d";  
    } 
+
+   if(node.focused){           
+      node.radius = 40;
+      node.lineWidth = 6;  
+      node.labelStyle.margin = -40;  
+   }
 
    return node;
 }
@@ -985,9 +973,14 @@ const handleSearch = () => {
    }
 }
 
+const goBack = () => {
+   // history.go(-1);
+}
+
 onMounted(() => {
    dataKey.value = getQueryVariable('id');
-   keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
+   genealogyName.value = getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '';
+   keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '始迁祖';
    keyWord.value ? getPositionNode() : null;
 });
 
@@ -995,58 +988,66 @@ onMounted(() => {
 
 <template>
    <section class="relationmap-wrap">
+      <header class="header">
+         <div class="left">
+            <img src="../assets/返回白色.svg" @click="goBack" />
+            <h3 class="title">{{genealogyName}}</h3>
+         </div>
+      </header>
       <i class="focus-circle" :style="{width: circleRect.w+'px', height: circleRect.h+'px', left: circleRect.x+'px', top: circleRect.y+'px'}"></i>
       <main class="main" id="relationmap">
          
       </main>
       <aside class="aside">
          <div class="search-box">
-            <el-input class="search" v-model="keyWord" placeholder="请输入关键字" @change="handleSearch" clearable />
+            <!-- <el-input class="search" v-model="keyWord" placeholder="请输入关键字" @change="handleSearch" clearable /> -->
+            <input class="search" type="text" v-model="keyWord" placeholder="请输入关键字" @change="handleSearch" >
+            <img class="search-icon" src="../assets/搜索.svg" alt="">
             <ul class="nodeList style1" v-if="nodes.length">
                <li v-for="(item, index) in nodes" :class="{active: rootKey == item._key}" :key="index" @click="handleClickNode(item)">{{item.Fullname}}</li>
             </ul>
          </div>
          <article class="article style1" v-if="detail._key">
-            <div class="node-detail" v-if="detail.Fullname">
-               <h3>{{detail.Fullname}}</h3>
+            <div class="node-detail fontSize36">
+               <h3>{{detail.Fullname || '-'}}</h3>
             </div>
-            <div class="node-detail" v-if="detail.Surname">
+            <div class="node-detail">
                <label for="">姓氏</label>
-               <i>{{detail.Surname}}</i>
+               <i>{{detail.Surname || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.Given">
+            <div class="node-detail">
                <label for="">名</label>
-               <i>{{detail.Given}}</i>
+               <i>{{detail.Given || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.Sex">
+            <div class="node-detail">
                <label for="">性别</label>
                <i>{{detail.Sex == 'male' ? '男' : '女'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.Zi">
+            <div class="node-detail">
                <label for="">字</label>
-               <i>{{detail.Zi}}</i>
+               <i>{{detail.Zi || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.Hao">
+            <div class="node-detail">
                <label for="">号</label>
-               <i>{{detail.Hao}}</i>
+               <i>{{detail.Hao || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.Hang">
+            <div class="node-detail">
                <label for="">行</label>
-               <i>{{detail.Hang}}</i>
+               <i>{{detail.Hang || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.BirthDate">
+            <div class="node-detail">
                <label for="">生于</label>
-               <i>{{detail.BirthDate}}</i>
+               <i>{{detail.BirthDate || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.DeathDate">
+            <div class="node-detail">
                <label for="">卒于</label>
-               <i>{{detail.DeathDate}}</i>
+               <i>{{detail.DeathDate || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail.Biography">
+            <div class="node-detail">
                <label for="">传记</label>
-               <i>{{detail.Biography}}</i>
+               <i>{{detail.Biography || '-'}}</i>
             </div>
-            <div class="node-detail marginB30">
+            <div class="node-detail marginB30" v-if="detail._key === rootKey">
                <label for="">关系</label>
                <ul class="links-box">
                   <li v-for="(item, index) in personList" :key="index">
@@ -1068,14 +1069,31 @@ onMounted(() => {
    position: relative;
    width: 100%;
    height: 100%;
-   background-color: #333;
+   background: #000 url('../assets/家谱平台关系图BG.png') 0 0 no-repeat;
    overflow: hidden;
+   color: #fff;
    .header{
-
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(100% - 46px);
+      padding: 13px 23px;
+      display: flex;
+      align-items: center;
+      font-size: 30px;
+      z-index: 10;
+      .left{
+         display: flex;
+         align-items: center;
+         img{
+            margin-right: 12px;
+            cursor: pointer;
+         }
+      }
    }
    .main{
       position: relative;
-      width: 100%;
+      width: calc(100% - 380px);
       height: 100%;
    }
    .focus-circle{
@@ -1091,10 +1109,10 @@ onMounted(() => {
    .footer{
       position: absolute;
       bottom: 0;
-      right: 0;
+      right: 380px;
       width: 200px;
       height: 50px;
-      background-color: #333;
+      background-color: #534f4a;
    }
 }
 @keyframes rotate {
@@ -1106,21 +1124,21 @@ onMounted(() => {
    top: 0;
    right: 0;
    bottom: 0;
-   width: 240px;
-   background-color: #333;
+   width: 340px;
    padding: 20px;
+   z-index: 11;
 }
 .article{
    position: relative;
-   height: calc(100% - 182px);
+   height: calc(100% - 192px);
    margin-top: 150px;
    color: #fff;
    overflow-y: auto;
+   font-size: 20px;
    .node-detail{
       display: flex;
       align-items: flex-start;
       margin-bottom: 10px;
-      cursor: pointer;
       label{
          width: 70px;
          display: block;
@@ -1133,10 +1151,17 @@ onMounted(() => {
          li{
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
-            cursor: pointer;
+            margin-bottom: 20px;
             p{
                margin-left: 20px;
+               width: 122px;
+               height: 40px;
+               line-height: 40px;
+               background: url('../assets/btn-icon.svg') 50% 50% no-repeat;
+               background-size: cover;
+               color: #000;
+               text-align: center;
+               cursor: pointer;
             }
          }
       }
@@ -1145,8 +1170,21 @@ onMounted(() => {
 .search-box{
    position: relative;
    width: 100%;
+   font-size: 16px;
    .search{
-      text-indent: 20px;
+      text-indent: 40px;
+      width: calc(100% - 2px);
+      height: 42px;
+      background-color: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.88);
+      font-size: 16px;
+   }
+   .search-icon{
+      position: absolute;
+      top: 11px;
+      left: 10px;
+      cursor: pointer;
    }
    .nodeList{
       position: absolute;
@@ -1162,17 +1200,17 @@ onMounted(() => {
       border-radius: 5px;
       color: #fff;
       li{
-         height: 30px;
-         line-height: 30px;
+         height: 42px;
+         line-height: 42px;
          cursor: pointer;
          overflow: hidden;
          white-space: nowrap;
          text-overflow: ellipsis;
          &:hover{
-            color: #7C4F11;
+            color: #F8EEDF;
          }
          &.active{
-            color: #7C4F11;
+            color: #F8EEDF;
          }
       }
    }

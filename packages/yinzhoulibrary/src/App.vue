@@ -18,6 +18,12 @@ watch(() => route, (to, from) => {
 
 const NoAnchor = ['/', '/GenealogySearch', '/GenealogyDetail', '/ImageView', '/Relationmap'];
 
+onMounted(() => {
+  window.addEventListener('resize', (e) => {
+    saveProperyValue({'label': 'isResize', 'value': Date.now()});
+  });
+});
+
 </script>
 
 <template>
