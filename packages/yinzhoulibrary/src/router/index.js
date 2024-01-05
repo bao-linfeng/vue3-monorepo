@@ -10,6 +10,7 @@ import ImageView from '../pages/ImageView.vue';
 import GenealogyManage from '../pages/GenealogyManage.vue';
 import VolumeManage from '../pages/VolumeManage.vue';
 import Relationmap from '../pages/Relationmap.vue';
+import Log from '../pages/Log.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -19,6 +20,7 @@ const routes = [
   { path: '/GenealogyManage', component: GenealogyManage },
   { path: '/VolumeManage', component: VolumeManage },
   { path: '/Relationmap', component: Relationmap },
+  { path: '/Log', component: Log },
 ];
 
 const router = createRouter({

@@ -109,6 +109,10 @@ const [tableData, refresh, loading, pagination] = useTable(catalog.searchGCFront
     immediate: true
   });
 
+const goBack = () => {
+  router.push('/');
+}
+
 onMounted(() => {
   tab.value = Number(getQueryVariable('tab')) || 0;
   GCResolverFrontEnd();
@@ -119,7 +123,7 @@ onMounted(() => {
 <template>
   <section class="genealogy-wrap">
     <HeaderModule />
-    <img class="image-title" src="../assets/标题.svg" />
+    <img class="image-title" @click="goBack" src="../assets/标题.svg" />
     <main class="main">
       <!-- search -->
       <section class="search-wrap">

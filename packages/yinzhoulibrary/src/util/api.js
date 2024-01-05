@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {createMsg} from './ADS.js'
 let baseURL = 'https://nbyzdata.qingtime.cn';
 let uploadFileURL = '';
 
@@ -32,11 +33,14 @@ const request = {
       axios
         .get((base ? base : baseURL) + url, { params })
         .then((response) => {
-          resolve(response.data);
-          if (response.data.status == 301) {
+          
+          if (response.data.status == 701) {
             // 验证码失效 => 跳转 验证码校验UI 2022.07.02 -> baolf
-            // createMsg(response.data.msg);
+            createMsg('Token失效，请重新登录');
+            window.location.href = '/GenealogySearch?isLogin=1';
             // router.push('/authentication');
+          }else{
+            resolve(response.data);
           }
         })
         .catch((error) => {

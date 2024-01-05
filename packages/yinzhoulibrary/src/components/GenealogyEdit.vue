@@ -121,6 +121,34 @@ const close = (f = false) => {
     emit('close', f);
 }
 
+const versionList = ref([
+    {'label': '版本类型', 'value': ''},
+    {'label': '刻本', 'value': '刊本'},
+    {'label': '刊本', 'value': '刊本'},
+    {'label': '写本', 'value': '写本'},
+]);
+
+const field_branch = ref([
+    {'fieldMeans': '谱名', 'fieldName': 'genealogyName', 'required': true},
+    {'fieldMeans': '姓氏', 'fieldName': 'surname', 'required': true},
+    {'fieldMeans': '堂号', 'fieldName': 'hall', 'required': true},
+    {'fieldMeans': '出版年', 'fieldName': 'publish'},
+    {'fieldMeans': '公元年', 'fieldName': 'publishAD'},
+    {'fieldMeans': '谱籍地', 'fieldName': 'place', 'required': true},
+    {'fieldMeans': '作者', 'fieldName': 'authors', 'required': true},
+    {'fieldMeans': '作者职务', 'fieldName': 'authorJob', 'required': true},
+    {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
+    {'fieldMeans': '先祖名人', 'fieldName': 'celebrities'},
+    {'fieldMeans': '版本类型', 'fieldName': 'version', 'required': true, 'type': 'select'},
+    {'fieldMeans': '总卷数', 'fieldName': 'volume', 'required': true},
+    {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
+    {'fieldMeans': '单双页', 'fieldName': 'singleortwo', 'required': true, 'type': 'select'},
+    {'fieldMeans': '实拍册数', 'fieldName': 'volumeNumber', 'required': true},
+    {'fieldMeans': '说明', 'fieldName': 'explain', 'type': 'textarea'},
+    {'fieldMeans': '馆藏地', 'fieldName': 'owner'},
+    {'fieldMeans': '入库编号', 'fieldName': 'id'},
+]);
+
 onMounted(() => {
     dataKey.value = props.dataRow._key;
     if(dataKey.value){
@@ -152,13 +180,13 @@ onMounted(() => {
         </header>
         <main class="main style1">
             <el-form :model="form" label-width="90px">
-                <el-form-item label="谱名">
+                <el-form-item label="谱名*">
                     <el-input class="w200" type="text" v-model="form.genealogyName" placeholder="请输入谱名" />
                 </el-form-item>
-                <el-form-item label="姓氏">
+                <el-form-item label="姓氏*">
                     <el-input class="w200" type="text" v-model="form.surname" placeholder="请输入姓氏" />
                 </el-form-item>
-                <el-form-item label="堂号">
+                <el-form-item label="堂号*">
                     <el-input class="w200" type="text" v-model="form.hall" placeholder="请输入堂号" />
                 </el-form-item>
                 <el-form-item label="出版年">
@@ -167,32 +195,44 @@ onMounted(() => {
                 <el-form-item label="公元年">
                     <el-input class="w200" type="text" v-model="form.publishAD" placeholder="请输入公元年" />
                 </el-form-item>
-                <el-form-item label="作者">
-                    <el-input class="w200" type="text" v-model="form.authors" placeholder="请输入作者" />
-                </el-form-item>
-                <el-form-item label="作者职务">
-                    <el-input class="w200" type="text" v-model="form.authorJob" placeholder="请输入作者职务" />
-                </el-form-item>
-                <el-form-item label="谱籍地">
+                <el-form-item label="谱籍地*">
                     <el-input class="w200" type="text" v-model="form.place" placeholder="请输入谱籍地" />
                 </el-form-item>
-                <el-form-item label="现代谱籍地">
-                    <el-input class="w200" type="text" v-model="form.LocalityModern" placeholder="请输入现代谱籍地" />
+                <el-form-item label="作者*">
+                    <el-input class="w200" type="text" v-model="form.authors" placeholder="请输入作者" />
                 </el-form-item>
-                <el-form-item label="版本类型">
+                <el-form-item label="作者职务*">
+                    <el-input class="w200" type="text" v-model="form.authorJob" placeholder="请输入作者职务" />
+                </el-form-item>
+                <el-form-item label="始迁祖">
+                    <el-input class="w200" type="text" v-model="form.authorJob" placeholder="请输入始迁祖" />
+                </el-form-item>
+                <el-form-item label="先祖名人">
+                    <el-input class="w200" type="text" v-model="form.authorJob" placeholder="请输入先祖名人" />
+                </el-form-item>
+                <el-form-item label="版本类型*">
                     <el-input class="w200" type="text" v-model="form.version" placeholder="请输入版本类型" />
                 </el-form-item>
-                <el-form-item label="总卷数">
+                <el-form-item label="总卷数*">
                     <el-input class="w200" type="text" v-model="form.volume" placeholder="请输入总卷数" />
                 </el-form-item>
-                <el-form-item label="实拍册数">
-                    <el-input class="w200" type="text" v-model="form.hasVolume" placeholder="请输入实拍册数" />
+                <el-form-item label="缺卷说明">
+                    <el-input class="w200" type="text" v-model="form.lostVolume" placeholder="请输入缺卷说明" />
                 </el-form-item>
-                <el-form-item label="备注">
-                    <el-input class="w200" type="textarea" :rows="3" v-model="form.memo" placeholder="请输入备注" />
+                <el-form-item label="单双页*">
+                    <el-input class="w200" type="text" v-model="form.singleortwo" placeholder="请输入单双页" />
+                </el-form-item>
+                <el-form-item label="实拍册数*">
+                    <el-input class="w200" type="text" v-model="form.hasVolume" placeholder="请输入实拍册数" />
                 </el-form-item>
                 <el-form-item label="说明">
                     <el-input class="w200" type="textarea" :rows="3" v-model="form.explain" placeholder="请输入说明" />
+                </el-form-item>
+                <el-form-item label="馆藏地">
+                    <el-input class="w200" type="text" v-model="form.owner" placeholder="请输入馆藏地" />
+                </el-form-item>
+                <el-form-item label="入库编号">
+                    <el-input class="w200" type="text" v-model="form.id" placeholder="请输入入库编号" />
                 </el-form-item>
                 <el-form-item v-if="!dataKey">
                     <el-checkbox v-model="form.isCreateVolume" label="按总卷册数自动生成卷册列表" />

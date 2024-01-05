@@ -13,6 +13,7 @@ const { saveProperyValue } = global;
 const asideList = ref([
     {'title': '谱目列表', 'route': '/GenealogyManage', 'icon': '', 'level': '0', 'show': true},
     {'title': '卷册列表', 'route': '/VolumeManage', 'icon': '', 'level': '0', 'show': true},
+    {'title': '系统日志', 'route': '/Log', 'icon': '', 'level': '0', 'show': true},
 ]);
 
 const logout = () => {

@@ -239,7 +239,7 @@ onMounted(() => {
         <article class="article" v-if="isText == 1">
           <!-- 关键字检索 -->
           <div class="search-box">
-            <el-input class="search" v-model="keyWord" placeholder="请输入关键字" @change="handleSearch" clearable />
+            <el-input class="search-1" v-model="keyWord" placeholder="请输入关键字" @change="handleSearch" clearable />
             <ul class="textList style1" v-if="textList.length">
               <li v-for="(item, index) in textList" :class="{active: textKey == (item.content+'-'+item.volumeNumber+'-'+item.pageNumber+'页')}" :key="index" :title="item.content+'-'+item.volumeNumber+'-'+item.pageNumber+'页'" @click="handleClickText(item)">{{item.content}}-{{item.volumeNumber}}-{{item.pageNumber}}页</li>
             </ul>
@@ -374,7 +374,7 @@ onMounted(() => {
         cursor: pointer;
         writing-mode: vertical-lr;
         vertical-align: top;
-        border: 1px solid #f00;
+        // border: 1px solid #f00;
         &.active{
           border: none;
           background-color: #ded184;
@@ -390,7 +390,7 @@ onMounted(() => {
       .search-box{
         position: relative;
         width: 100%;
-        .search{
+        .search-1{
           text-indent: 40px;
         }
         .textList{

@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
-import { setValue } from '../util/ADS.js';
+import { setValue, getQueryVariable } from '../util/ADS.js';
 import LoginModule from './LoginModule.vue';
 
 const router = useRouter();
@@ -31,7 +31,12 @@ const handleLogin = () => {
 }
 
 onMounted(() => {
-
+    if(getQueryVariable('isLogin') == 1){
+        saveProperyValue({'label': 'token', 'value': ''});
+        saveProperyValue({'label': 'userInfo', 'value': ''});
+        localStorage.clear();
+        handleLogin();
+    }
 });
 
 </script>
