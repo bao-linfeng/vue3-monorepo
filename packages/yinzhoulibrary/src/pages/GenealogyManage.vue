@@ -146,7 +146,7 @@ const handleClickAction = (row, t) => {
     window.open('/ImageView?id='+row._key+'&genealogyName='+row.genealogyName+'&volumeKey='+row.firstVolumeKey+'&page=1&content=&isText=1');
   }
   if(t === 'lookTree'){
-    window.open('/Relationmap?id='+row._key);
+    window.open('/Relationmap?id='+row._key+'&genealogyName='+row.genealogyName);
   }
   if(t === 'lookVolume'){
     router.push('/VolumeManage?id='+row._key);
@@ -372,7 +372,7 @@ onMounted(() => {
         <el-table-column prop="lostVolume" label="缺卷" width="120" align="center" />
         <el-table-column prop="singleOrTwo" label="单双页" width="120" align="center" />
         <el-table-column prop="hasVolume" label="实拍册数" width="120" align="center" />
-        <el-table-column prop="images" label="影像页" width="120" align="center" />
+        <el-table-column prop="imageCount" label="影像页" width="120" align="center" />
         <el-table-column prop="explain" label="说明" width="120" align="center" />
         <el-table-column prop="memo" label="备注" width="120" align="center" />
         <el-table-column label="操作" fixed="right" width="200" align="center">

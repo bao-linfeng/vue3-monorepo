@@ -23,7 +23,7 @@ const zoomChartsData = ref({
    links: []
 });
 
-const members = {};
+let members = {};
 const membersList = ref([]);
 
 const getTotalTree = async () => {
@@ -38,59 +38,50 @@ const getTotalTree = async () => {
    loading.close();
    if(result.status == 200){
       rootKey.value = result.result.root;
-      result.result.nodes.forEach((ele) => {
-         members[ele._key] = ele;
-      });
-      let personArr = [], index = 0;
+      members = result.result.members;
+      // console.log(members);
+
+      let personArr = [];
       for(let key in members){
-         if(members[key] && members[key].children && members[key].children.length && members[key].isMember == 1){
+         if(members[key].isMember != 1){
+            members[key].children = [];
+            members[key].spouseOrder = [];
+         }
+         if(members[key].children.length && members[key].isMember == 1){
             for(let i = 0; i < members[key].children.length; i++){
                members[key].children[i] = members[members[key].children[i]];
             }
          }
-         if(members[key] && members[key].spouseOrder && members[key].spouseOrder.length && members[key].isMember == 1){
+         if(members[key].spouseOrder.length && members[key].isMember == 1){
             for(let j = 0; j < members[key].spouseOrder.length; j++){
                members[key].spouseOrder[j] = members[members[key].spouseOrder[j]];
             }
          }
       }
-      // membersList.value = [members[rootKey.value]];
-      [members[rootKey.value]].forEach((ele) => {
-         let arr = [];
-         arr.push(ele);
-         if(ele.spouseOrder.length){
-            arr = arr.concat(ele.spouseOrder);
-         }
-         // personArr[index] = [];
-         personArr[index] = arr;
 
-         if(ele.children.length && ele.isMember == 1){
-            getChildren(ele.children);
-         }else{
-            
-         }
-      });
+      // console.log(members[rootKey.value]);
 
       function getChildren(data){
-         index++;
-         let arr = [];
-         data.forEach((ele, i) => {
-            arr = arr.concat(ele);
-            if(ele.spouseOrder.length){
-               arr = arr.concat(ele.spouseOrder);
+         let arr = [], Generation = 0;
+         for(let i = 0; i < data.length; i++){
+            Generation = data[i].Generation || 0;
+            arr = arr.concat(data[i]);
+
+            if(data[i].spouseOrder.length){
+               arr = arr.concat(data[i].spouseOrder);
             }
-            // console.log(arr);
-            personArr[index] = arr;
-            if(ele.children.length && ele.isMember == 1){
-               getChildren(ele.children);
+
+            if(data[i].children.length && data[i].isMember == 1){
+               getChildren(data[i].children);
             }
-         });
-         // personArr[index] = [];
-         
+         }
+         personArr[Generation] = arr;
       }
-      console.log(personArr, index);
+
+      getChildren([members[rootKey.value]]);
+
       membersList.value = personArr;
-      // console.log(members[rootKey.value]);
+      console.log(personArr);
    }else{
       createMsg(result.msg);
    }
@@ -314,6 +305,25 @@ const getFiveGeneration = async (id) => {
    }
 };
 
+// 获取谱的一世祖节点key
+const getFirstAncestor = async () => {
+   const loading = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.7)',
+   });
+   const result = await pedigreeApi.getFirstAncestor({
+      'gcKey': dataKey.value,
+   });
+   loading.close();
+   if(result.status == 200){
+      rootKey.value = result.result.firstAncestorKey;
+      getFiveGeneration(rootKey.value);
+   }else{
+      createMsg(result.msg);
+   }
+};
+
 const handleClickNode = (data) => {
    rootKey.value = data._key;
    keyWord.value = '';
@@ -333,7 +343,7 @@ const handleClickName = (data) => {
    data.isMember == 1 ? getFiveGeneration(data._key) : null;  
 }
 
-const type = ref('1');
+const type = ref('2');
 const typeList = ref([
    {'label': '人物图谱', 'value': '1'},
    {'label': '世系图谱', 'value': '2'},
@@ -348,7 +358,7 @@ onMounted(() => {
    genealogyName.value = getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '';
    keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
    if(type.value == 1){
-      keyWord.value ? getPositionNode() : null;
+      keyWord.value ? getPositionNode() : getFirstAncestor();
    }else{
       getGCPedigreeListFrontEnd();
    }

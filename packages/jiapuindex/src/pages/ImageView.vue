@@ -47,7 +47,7 @@ const getVolumeList = async (dataKey) => {// 卷册列表
         let takeStatusOO = {'1': '待拍摄', '2': '拍摄中', '3': '自检中', '4': '同步中', '5': '初审', '6': '打回中', '7': '完成', '8': '开发票中', '12': '审核', '13': '复审', '14': '待议', '15': '', '16': '作废'};
         result.data.forEach((ele) => {
             ele.takeStatusO = takeStatusOO[ele.takeStatus];
-            ele.label = ele.volumeNumber+'('+ele.takeStatusO+')';
+            ele.label = ele.volumeNumber+'-'+ele._key+'('+ele.takeStatusO+')';
             ele.value = ele._key;
 
             arr.push(ele);

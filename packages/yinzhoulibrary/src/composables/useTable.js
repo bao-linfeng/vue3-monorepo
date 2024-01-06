@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { usePagination } from './usePagination.js';
+import { formattedDate } from '../util/ADS';
 
 export function useTable(api, params, options = {
     path: {data: "data", total: "total", page: "page", size: "size" },
@@ -15,7 +16,10 @@ export function useTable(api, params, options = {
             // console.log(res);
             loading.value = false;
             if(res.status == 200){
-                data.value = res.result.list;
+                data.value = res.result.list.map((ele) => {
+                    ele.time = formattedDate(ele.time); 
+                    return ele;
+                });
                 setTotal(res.result.total);
             }else{
                 console.log(res.msg);

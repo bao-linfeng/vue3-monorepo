@@ -20,10 +20,10 @@ const { userInfo, orgMemberInfo, langData, lanType } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const list = ref([
-    {'icon': undistributed, 'name': orgMemberInfo.value.englishName == 'FS' ? '未分配' : '待递交', 'catalogCount': '', 'imageCount': '', 'c': 'noAssignGCCount', 'i': 'noAssignImageCount'},
-    {'icon': underway, 'name': orgMemberInfo.value.englishName == 'FS' ? '进行中' : '交付中', 'catalogCount': '', 'imageCount': '', 'c': 'inProgressGCCount', 'i': 'inProgressImageCount'},
-    {'icon': completed, 'name': '已完工', 'catalogCount': '', 'imageCount': '', 'c': 'finishGCCount', 'i': 'finishNodeCount'},
-    {'icon': RMScompleted, 'name': 'RMS已完工', 'catalogCount': '', 'imageCount': '', 'c': 'finishGCCount', 'i': 'finishNodeCount'}
+    {'icon': undistributed, 'name': orgMemberInfo.value.englishName == 'FS' ? '未分配' : '待递交', 'catalogCount': '', 'imageCount': '', 'adjImageCount': '', 'c': 'noAssignGCCount', 'i': 'noAssignImageCount', 'a': 'noAssignADJImageCount'},
+    {'icon': underway, 'name': orgMemberInfo.value.englishName == 'FS' ? '进行中' : '交付中', 'catalogCount': '', 'imageCount': '', 'adjImageCount': '', 'c': 'inProgressGCCount', 'i': 'inProgressImageCount', 'a': 'inProgressADJImageCount'},
+    {'icon': completed, 'name': '已完工', 'catalogCount': '', 'imageCount': '', 'adjImageCount': '', 'c': 'finishGCCount', 'i': 'finishNodeCount', 'a': 'finishADJImageCount'},
+    {'icon': RMScompleted, 'name': 'RMS已完工', 'catalogCount': '', 'imageCount': '', 'adjImageCount': '', 'c': 'finishGCCount', 'i': 'finishNodeCount', 'a': 'adjImageCount'}
 ]);
 
 const goRoute = (e, i) => {
@@ -60,8 +60,10 @@ const O = ref({});
         list.value.forEach((ele, i) => {
             ele.catalogCount = thousands(result.data[ele.c]);
             ele.imageCount = thousands(result.data[ele.i]);
+            ele.adjImageCount = thousands(result.data[ele.a] || 0);
             ele.RMSFinishGCCount = thousands(result.data.RMSFinishGCCount);
             ele.RMSFinishNodeCount = thousands(result.data.RMSFinishNodeCount);
+            ele.RMSFinishADJImageCount = thousands(result.data.RMSFinishADJImageCount || 0);
         });
     }else{
         createMsg(result.msg);
@@ -130,8 +132,10 @@ onMounted(() => {
                             </div>
                             <div class="overview-right">
                                 <p v-if="i <= 2" class="marginB20">{{langData['谱目数']}}  <i>{{ele.catalogCount}}</i></p>
-                                <p v-if="i <= 2">{{i == 2 ? langData['节点数'] : langData['影像页']}}  <i>{{ele.imageCount}}</i></p>
+                                <p v-if="i <= 2" class="marginB20">{{i == 2 ? langData['节点数'] : langData['影像页']}}  <i>{{ele.imageCount}}</i></p>
+                                <p v-if="i <= 2">{{langData['adj影像']}}  <i>{{ele.adjImageCount}}</i></p>
                                 <p v-if="i == 3" class="marginB20">RMS {{langData['谱目数']}}  <i>{{ele.RMSFinishGCCount}}</i></p>
+                                <p v-if="i === 3" class="marginB20">RMS {{langData['adj影像']}}  <i>{{ele.RMSFinishADJImageCount}}</i></p>
                                 <p v-if="i == 3">RMS {{langData['节点数']}}  <i>{{ele.RMSFinishNodeCount}}</i></p>
                             </div>
                         </div>

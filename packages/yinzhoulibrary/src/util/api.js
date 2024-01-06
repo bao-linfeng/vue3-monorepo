@@ -207,6 +207,18 @@ const pedigreeApi = {
   getFiveGeneration(param){// 获取5代数据
 		return request.get('/pedigree/fiveGeneration', param);
 	},
+  getFirstAncestor(param){// 获取谱的一世祖节点key
+		return request.get('/pedigree/firstAncestor', param);
+	},
+};
+
+const logApi = {
+  getOperationLogType(param){// 日志类型列表
+		return request.get('/operationLog/operationLogType', param);
+	},
+  getOperationLogList(param){// 日志类型列表
+		return request.get('/operationLog/operationLogList', param);
+	},
 };
 
 export { 
@@ -217,4 +229,5 @@ export {
   imageApi,
   baseURL, 
   pedigreeApi,
+  logApi,
 };

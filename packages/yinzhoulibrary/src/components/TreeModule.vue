@@ -39,14 +39,23 @@ onMounted(() => {
 <style scoped lang="scss">
 .tree-wrap{
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 76px);
+    height: calc(100% - 30px);
+    padding: 76px 0 0 30px;
     overflow-y: auto;
 }
 .tree{
+    margin-bottom: 20px;
     li{
         display: inline-block;
         margin-right: 30px;
+        background-color: #999;
+        border-radius: 5px;
+        height: 20px;
+        line-height: 20px;
+        padding: 0 5px;
+        cursor: pointer;
+        font-size: 14px;
         &.red{
             color: #f00;
         }
