@@ -7,6 +7,8 @@ export const useGlobalStore = defineStore('global', () => {
   const token = ref(getValue('token') || '');
   const userInfo = ref(getValue('userInfo') ? JSON.parse(getValue('userInfo')) : {});
   const isResize = ref(0);
+  const activeKey = ref('');
+  const activeLevel = ref('0');
 
   const saveProperyValue = (data, f = false) => {
     switch(data.label){
@@ -22,6 +24,12 @@ export const useGlobalStore = defineStore('global', () => {
       case 'isResize':
         isResize.value = data.value;
         break;
+      case 'activeKey':
+        activeKey.value = data.value;
+        break;
+      case 'activeLevel':
+        activeLevel.value = data.value;
+        break;
       default:
         console.log('未定义属性');
     }
@@ -35,6 +43,8 @@ export const useGlobalStore = defineStore('global', () => {
     token,
     userInfo,
     isResize,
+    activeKey,
+    activeLevel,
     saveProperyValue,
   };
 });

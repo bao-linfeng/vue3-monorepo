@@ -11,7 +11,7 @@ import TreeModule from '../components/TreeModule.vue';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
+const { userInfo, pathActive, orgMemberInfo, token, activeKey, activeLevel } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const props = defineProps({
@@ -24,9 +24,11 @@ const zoomChartsData = ref({
 });
 
 let members = {};
-const membersList = ref([]);
+const rootMembers = ref({'Fullname': '', 'Given': ''});
+const GenerationList = ref([]);
 
 const getTotalTree = async () => {
+   GenerationList.value = [];
    const loading = ElLoading.service({
       lock: true,
       text: 'Loading',
@@ -38,20 +40,25 @@ const getTotalTree = async () => {
    loading.close();
    if(result.status == 200){
       rootKey.value = result.result.root;
+      saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
       members = result.result.members;
-      // console.log(members);
 
-      let personArr = [];
       for(let key in members){
+         // if(Number(members[key].Generation) >= generation.value){
+         //    generation.value = Number(members[key].Generation);
+         // }
+
          if(members[key].isMember != 1){
             members[key].children = [];
             members[key].spouseOrder = [];
          }
+
          if(members[key].children.length && members[key].isMember == 1){
             for(let i = 0; i < members[key].children.length; i++){
                members[key].children[i] = members[members[key].children[i]];
             }
          }
+
          if(members[key].spouseOrder.length && members[key].isMember == 1){
             for(let j = 0; j < members[key].spouseOrder.length; j++){
                members[key].spouseOrder[j] = members[members[key].spouseOrder[j]];
@@ -59,33 +66,68 @@ const getTotalTree = async () => {
          }
       }
 
-      // console.log(members[rootKey.value]);
+      rootMembers.value = members[rootKey.value]; 
+      // console.log(rootMembers.value);
 
+      let personArr = [];
       function getChildren(data){
-         let arr = [], Generation = 0;
-         for(let i = 0; i < data.length; i++){
-            Generation = data[i].Generation || 0;
-            arr = arr.concat(data[i]);
+         let Generation = 0;
+         if(data.length){
+            for(let i = 0; i < data.length; i++){
+               Generation = data[i].Generation || 0;
+               
+               if(!personArr[Generation]){
+                  personArr[Generation] = [];
+                  // 获取每一世代 第一个节点
+                  if(i === 0){
+                     GenerationList.value.push({
+                        'name': data[i].Fullname || data[i].Given,
+                        '_key': data[i]._key,
+                        'Generation': data[i].Generation,
+                     });
+                  }
+               }
 
-            if(data[i].spouseOrder.length){
-               arr = arr.concat(data[i].spouseOrder);
-            }
+               personArr[Generation].push(data[i]);
 
-            if(data[i].children.length && data[i].isMember == 1){
-               getChildren(data[i].children);
+               if(data[i].spouseOrder.length && data[i].isMember == 1){
+                  personArr[Generation] = personArr[Generation].concat(data[i].spouseOrder);
+               }
+
+               if(data[i].children.length && data[i].isMember == 1){
+                  getChildren(data[i].children);
+               }
             }
          }
-         personArr[Generation] = arr;
       }
 
       getChildren([members[rootKey.value]]);
+      console.log(GenerationList.value);
 
-      membersList.value = personArr;
-      console.log(personArr);
+      if(keyWord.value){
+         getPositionNode();
+      }
    }else{
       createMsg(result.msg);
    }
 };
+
+watch(activeKey, () => {
+   saveProperyValue({'label': 'activeLevel', 'value': Number(members[activeKey.value].Generation)});
+   detail.value = members[activeKey.value];
+   if(type.value == 2){
+      handleScrollIntoView(activeLevel.value);
+      handleScrollIntoView(activeKey.value+'-'+activeLevel.value);
+   }
+});
+
+const handleScrollIntoView = (id) => {
+   let timer = setTimeout(() => {
+      clearTimeout(timer);
+      timer = null;
+      document.getElementById(id+'').scrollIntoView();
+   }, 200);
+}
 
 const getGCPedigreeListFrontEnd = async () => {
    const loading = ElLoading.service({
@@ -204,7 +246,7 @@ const initZoomCharts = (data, rootKey) => {
                w: args.nodes[0].shape.hHeight*4,
                h: args.nodes[0].shape.hWidth*4,
                x: args.nodes[0].shape.x-2*args.nodes[0].shape.hWidth,
-               y: args.nodes[0].shape.y-2*args.nodes[0].shape.hWidth,
+               y: args.nodes[0].shape.y-2*args.nodes[0].shape.hWidth + 76,
             }               
          },    
       },
@@ -265,7 +307,17 @@ const getPositionNode = async () => {
          }
          return ele;
       });
-      getFiveGeneration(rootKey.value);
+      saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
+      if(type.value == 1){
+         getFiveGeneration(rootKey.value)
+      }else{
+         if(keyWord.value){
+            // rootMembers.value = members[rootKey.value]; 
+            // detail.value = members[rootKey.value];
+         }else{
+
+         }
+      }
    }else{
       createMsg(result.msg);
    }
@@ -326,9 +378,15 @@ const getFirstAncestor = async () => {
 
 const handleClickNode = (data) => {
    rootKey.value = data._key;
+   saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
    keyWord.value = '';
    nodes.value = [];
-   getFiveGeneration(rootKey.value);
+   if(type.value == 1){
+      getFiveGeneration(rootKey.value)
+   }else{
+      // rootMembers.value = members[rootKey.value]; 
+      // detail.value = members[rootKey.value];
+   }
 }
 
 const handleSearch = () => {
@@ -348,6 +406,19 @@ const typeList = ref([
    {'label': '人物图谱', 'value': '1'},
    {'label': '世系图谱', 'value': '2'},
 ]);
+
+const handleClickTab = (data) => {
+   if(type.value == data.value){
+      return;
+   }
+   type.value = data.value;
+   keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
+   if(type.value == 1){
+      keyWord.value ? getPositionNode() : getFirstAncestor();
+   }else{
+      getGCPedigreeListFrontEnd();
+   }
+}
 
 const goBack = () => {
    // history.go(-1);
@@ -373,11 +444,14 @@ onMounted(() => {
             <img src="../assets/返回白色.svg" @click="goBack" />
             <h3 class="title">{{genealogyName}}</h3>
          </div>
+         <ul class="tab-wrap">
+            <li :class="{active: type === item.value}" v-for="(item, index) in typeList" :key="index" @click="handleClickTab(item)">{{item.label}}</li>
+         </ul>
       </header>
-      <i class="focus-circle" :style="{width: circleRect.w+'px', height: circleRect.h+'px', left: circleRect.x+'px', top: circleRect.y+'px'}"></i>
+      <i class="focus-circle" v-if="type == 1" :style="{width: circleRect.w+'px', height: circleRect.h+'px', left: circleRect.x+'px', top: circleRect.y+'px'}"></i>
       <main class="main">
          <div v-if="type == 1" class="relationmap" id="relationmap"></div>
-         <TreeModule v-else :treeData="membersList" />
+         <TreeModule v-else :treeData="rootMembers" :generation="GenerationList" />
       </main>
       <aside class="aside">
          <div class="search-box">
@@ -389,7 +463,7 @@ onMounted(() => {
          </div>
          <article class="article style1" v-if="detail._key">
             <div class="node-detail fontSize36">
-               <h3>{{detail.Fullname || '-'}}</h3>
+               <h3>{{detail.Fullname || detail.Given || '-'}}</h3>
             </div>
             <div class="node-detail">
                <label for="">姓氏</label>
@@ -405,7 +479,7 @@ onMounted(() => {
             </div>
             <div class="node-detail">
                <label for="">世代</label>
-               <i v-if="detail.generation">{{detail.generation+'世'}}</i>
+               <i v-if="detail.Generation">{{detail.Generation+'世'}}</i>
             </div>
             <div class="node-detail">
                <label for="">字</label>
@@ -431,7 +505,7 @@ onMounted(() => {
                <label for="">传记</label>
                <i>{{detail.Biography || '-'}}</i>
             </div>
-            <div class="node-detail" v-if="detail._key === rootKey">
+            <div class="node-detail" v-if="detail._key === rootKey && type == 1">
                <label for="">关系</label>
                <ul class="links-box">
                   <li v-for="(item, index) in personList" :key="index">
@@ -442,7 +516,7 @@ onMounted(() => {
             </div>
          </article>
       </aside>
-      <footer class="footer">
+      <footer class="footer" v-if="type == 1">
          
       </footer>
    </section>
@@ -475,9 +549,28 @@ onMounted(() => {
             cursor: pointer;
          }
       }
+      .tab-wrap{
+         position: absolute;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         display: flex;
+         align-items: center;
+         font-size: 20px;
+         li{
+            margin: 0 20px;
+            cursor: pointer;
+            opacity: 0.8;
+            &.active{
+               opacity: 1;
+            }
+         }
+      }
    }
    .main{
-      position: relative;
+      position: absolute;
+      top: 76px;
+      left: 0;
       width: calc(100% - 380px);
       height: 100%;
       .relationmap{

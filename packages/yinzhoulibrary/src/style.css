@@ -175,3 +175,71 @@ i{
 .input-center .el-input__inner{
   text-align: center;
 }
+
+/* 树 */
+.node {
+  position: relative;
+}
+.nodeHasLittleBrother::before{
+  content: '';
+  width: 100%;
+  height: 1px;
+  background-color: #f00;
+  position: absolute;
+  top: 10px;
+  left: left;
+}
+.name-box{
+  margin-bottom: 40px;
+  display: flex;
+}
+.name{
+  position: relative;
+  display: inline-block;
+  padding: 0 12px 0 6px;
+  height: 20px;
+  line-height: 20px;
+  background-color: #666;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+.name.select{
+  background-color: #999;
+}
+.toggle{
+  position: absolute;
+  top: 50%;
+  right: 0;
+  height: 12px;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.hasChild::before{
+  content: '';
+  width: 1px;
+  height: 40px;
+  background-color: #f00;
+  position: absolute;
+  top: 100%;
+  left: 10px;
+}
+.hasChild.noline::before{
+  display: none;
+}
+.red{
+  color: #f00;
+  padding:  0 6px;
+}
+.red::before{
+  content: '';
+  width: 20px;
+  height: 1px;
+  background-color: #f00;
+  position: absolute;
+  top: 50%;
+  right: 100%;
+}
+.node-list{
+  display: flex;
+}
