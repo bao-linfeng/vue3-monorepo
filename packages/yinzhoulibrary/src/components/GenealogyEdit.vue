@@ -27,30 +27,7 @@ const createSingleGC = async () => {
     text: 'Loading',
     background: 'rgba(0, 0, 0, 0.7)',
   });
-  const result = await catalog.createSingleGC({
-    'token': token.value,
-    'genealogyName': form.value.genealogyName,
-    'surname': form.value.surname,
-    'hall': form.value.hall,
-    'publish': form.value.publish,
-    'publishAD': form.value.publishAD,
-    'place': form.value.place,
-    'authors': form.value.authors,
-    'authorJob': form.value.authorJob,
-    'migrationAncestor': form.value.migrationAncestor,
-    'celebrity': form.value.celebrity,
-    'version': form.value.version,
-    'volume': form.value.volume,
-    'lostVolume': form.value.lostVolume,
-    'singleOrTwo': form.value.singleOrTwo,
-    'hasVolume': form.value.hasVolume,
-    'explain': form.value.explain,
-    'owner': form.value.owner,
-    'carrierType': form.value.carrierType,
-    'inStoreSerialName': form.value.inStoreSerialName,
-
-    'isCreateVolume': form.value.isCreateVolume ? 1 : 0,
-  });
+  const result = await catalog.createSingleGC(Object.assign({'token': token.value, 'isCreateVolume': isCreateVolume.value ? 1 : 0}, form.value));
   loading.close();
   if(result.status == 200){
     createMsg('新建谱目成功!', true);
@@ -114,11 +91,13 @@ const singleOrTwoList = ref([
     {'label': '双页', 'value': '双页'},
 ]);
 
-const carrierTypeList = ref([{'label': '纸质', 'value': '纸质'},
+const carrierTypeList = ref([
+    {'label': '纸质', 'value': '纸质'},
     {'label': '电子谱', 'value': '电子谱'},
 ]);
 
 const dataKey = ref('');
+const isCreateVolume = ref(false);
 const form = ref({
     'genealogyName': '', 
     'surname': '',
@@ -137,10 +116,10 @@ const form = ref({
     'hasVolume': '',
     'explain': '',
     'owner': '',
-    'carrierType': '',
+    'carrierType': '纸质',
     'inStoreSerialName': '',
-    'isCreateVolume': '',
 });
+
 const field_branch = ref([
     {'fieldMeans': '谱名', 'fieldName': 'genealogyName', 'required': true, 'type': 'text'},
     {'fieldMeans': '姓氏', 'fieldName': 'surname', 'required': true, 'type': 'text'},
@@ -159,7 +138,7 @@ const field_branch = ref([
     {'fieldMeans': '实拍册数', 'fieldName': 'hasVolume', 'required': true, 'type': 'text'},
     {'fieldMeans': '说明', 'fieldName': 'explain', 'type': 'textarea'},
     {'fieldMeans': '馆藏地', 'fieldName': 'owner', 'type': 'text'},
-    {'fieldMeans': '载体类型', 'fieldName': 'carrierType', 'type': 'text'},
+    {'fieldMeans': '载体形态', 'fieldName': 'carrierType', 'type': 'text'},
     {'fieldMeans': '入库编号', 'fieldName': 'inStoreSerialName', 'type': 'text'},
 ]);
 
@@ -211,7 +190,7 @@ onMounted(() => {
                 </el-form-item>
 
                 <el-form-item v-if="!dataKey">
-                    <el-checkbox v-model="form.isCreateVolume" label="按总卷册数自动生成卷册列表" />
+                    <el-checkbox v-model="isCreateVolume" label="按总卷册数自动生成卷册列表" />
                 </el-form-item>
             </el-form>
         </main>

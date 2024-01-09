@@ -267,10 +267,10 @@ const handleClickName = (data) => {
    data.isMember == 1 ? getFiveGeneration(data._key) : null;  
 }
 
-const type = ref('2');
+const type = ref('1');
 const typeList = ref([
    {'label': '人物图谱', 'value': '1'},
-   {'label': '世系图谱', 'value': '2'},
+   {'label': '家谱世系', 'value': '2'},
 ]);
 
 const handleClickTab = (data) => {

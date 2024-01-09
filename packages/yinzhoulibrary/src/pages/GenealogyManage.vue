@@ -20,22 +20,11 @@ const getDataList = async (f = true) => {
     background: 'rgba(0, 0, 0, 0.7)',
   });
   tableData.value = [];
-  const result = await catalog.searchGC({
+  const result = await catalog.searchGC(Object.assign({
     'token': token.value,
-    'gcKey': SearchParameters.value.gcKey,
-    'genealogyName': SearchParameters.value.genealogyName,
-    'surname': SearchParameters.value.surname,
-    'hall': SearchParameters.value.hall,
-    'publish': SearchParameters.value.publish,
-    'authors': SearchParameters.value.authors,
-    'place': SearchParameters.value.place,
-    'LocalityModern': SearchParameters.value.LocalityModern,
-    'hasImage': SearchParameters.value.hasImage,
-    'hasIndex': SearchParameters.value.hasIndex,
-    'hasTree': SearchParameters.value.hasTree,
     'page': page.value,
     'limit': limit.value,
-  });
+  }, SearchParameters.value));
   loading.close();
   if(result.status == 200){
     tableData.value = result.result.list;
@@ -47,23 +36,26 @@ const getDataList = async (f = true) => {
 };
 
 const GCStatistics = async () => {
-  const result = await catalog.GCStatistics({
-    'token': token.value,
-    'gcKey': SearchParameters.value.gcKey,
-    'genealogyName': SearchParameters.value.genealogyName,
-    'surname': SearchParameters.value.surname,
-    'hall': SearchParameters.value.hall,
-    'publish': SearchParameters.value.publish,
-    'authors': SearchParameters.value.authors,
-    'place': SearchParameters.value.place,
-    'LocalityModern': SearchParameters.value.LocalityModern,
-    'hasImage': SearchParameters.value.hasImage,
-    'hasIndex': SearchParameters.value.hasIndex,
-    'hasTree': SearchParameters.value.hasTree,
-  });
+  const result = await catalog.GCStatistics(Object.assign({
+    'token': token.value
+  }, SearchParameters.value));
   if(result.status == 200){
     volumeCount.value = result.result.volumeCount;
     imageCount.value = result.result.imageCount;
+  }else{
+    ElMessage({
+      message: result.msg,
+      type: 'warning',
+    });
+  }
+};
+
+const searchGCDownload = async () => {
+  const result = await catalog.searchGCDownload(Object.assign({
+    'token': token.value
+  }, SearchParameters.value));
+  if(result.status == 200){
+    downliadLink(result.result, baseURL+'/');
   }else{
     ElMessage({
       message: result.msg,
@@ -118,10 +110,10 @@ const SearchParameters = ref({
   'genealogyName': '',
   'surname': '',
   'hall': '',
-  'publish': '',
-  'authors': '',
-  'place': '',
-  'LocalityModern': '',
+  // 'publish': '',
+  // 'authors': '',
+  // 'place': '',
+  'carrierType': '',
   'hasImage': '',
   'hasIndex': '',
   'hasTree': '',
@@ -169,6 +161,9 @@ const handleClickAction = (row, t) => {
   }
   if(t === 'batchLoad'){
     
+  }
+  if(t === 'download'){
+    searchGCDownload();
   }
   dataRow.value = row;
   isShow.value = t;
@@ -271,21 +266,27 @@ const importTree = async (simplePath) => {
 };
 
 const hasImageList = ref([
-  {'label': '全部影像', 'value': ''},
+  {'label': '影像', 'value': ''},
   {'label': '有影像', 'value': '1'},
   {'label': '无影像', 'value': '2'},
 ]);
 
 const hasIndexList = ref([
-  {'label': '全部索引', 'value': ''},
-  {'label': '有索引', 'value': '1'},
-  {'label': '无索引', 'value': '2'},
+  {'label': '全文', 'value': ''},
+  {'label': '有全文', 'value': '1'},
+  {'label': '无全文', 'value': '2'},
 ]);
 
 const hasTreeList = ref([
-  {'label': '全部节点', 'value': ''},
+  {'label': '人物节点', 'value': ''},
   {'label': '有节点', 'value': '1'},
   {'label': '无节点', 'value': '2'},
+]);
+
+const carrierTypeList = ref([
+  {'label': '载体形态', 'value': ''},
+  {'label': '纸质', 'value': '纸质'},
+  {'label': '电子谱', 'value': '电子谱'},
 ]);
 
 watch(isResize, () => {
@@ -306,6 +307,7 @@ onMounted(() => {
       <div class="right">
         <el-button type="primary" @click="handleClickAction({}, 'template')">模板</el-button>
         <el-button type="primary" @click="handleClickAction({}, 'add')">新建谱目</el-button>
+        <el-button type="primary" @click="handleClickAction({}, 'download')">下载</el-button>
         <el-upload
             class="inline-block marginL10"
             :action="baseURL+'/upload'"
@@ -327,7 +329,15 @@ onMounted(() => {
           <el-input v-model="SearchParameters.genealogyName" class="w150" placeholder="谱名" clearable />
           <el-input v-model="SearchParameters.surname" class="w150" placeholder="姓氏" clearable />
           <el-input v-model="SearchParameters.hall" class="w150" placeholder="堂号" clearable />
-          <el-select v-model="SearchParameters.hasImage" class="w150" placeholder="全部影像">
+          <el-select v-model="SearchParameters.carrierType" class="w150" placeholder="单双页">
+            <el-option
+              v-for="item in carrierTypeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+          <el-select v-model="SearchParameters.hasImage" class="w150" placeholder="影像">
             <el-option
               v-for="item in hasImageList"
               :key="item.value"
@@ -335,7 +345,7 @@ onMounted(() => {
               :value="item.value"
             />
           </el-select>
-          <el-select v-model="SearchParameters.hasIndex" class="w150" placeholder="全部索引">
+          <el-select v-model="SearchParameters.hasIndex" class="w150" placeholder="全文">
             <el-option
               v-for="item in hasIndexList"
               :key="item.value"
@@ -343,7 +353,7 @@ onMounted(() => {
               :value="item.value"
             />
           </el-select>
-          <el-select v-model="SearchParameters.hasTree" class="w150" placeholder="全部节点">
+          <el-select v-model="SearchParameters.hasTree" class="w150" placeholder="人物节点">
             <el-option
               v-for="item in hasTreeList"
               :key="item.value"
@@ -366,20 +376,21 @@ onMounted(() => {
         <el-table-column prop="surname" label="姓氏" width="120" align="center" />
         <el-table-column prop="hall" label="堂号" width="120" align="center" />
         <el-table-column prop="publish" label="出版年" width="140" align="center" />
-        <el-table-column prop="place" label="谱籍地" min-width="120" align="center" />
+        <el-table-column prop="place" label="谱籍地" min-width="180" align="center" />
         <el-table-column prop="authors" label="作者" width="120" align="center" />
         <el-table-column prop="volume" label="总卷数" width="120" align="center" />
         <el-table-column prop="lostVolume" label="缺卷" width="120" align="center" />
         <el-table-column prop="singleOrTwo" label="单双页" width="120" align="center" />
         <el-table-column prop="hasVolume" label="实拍册数" width="120" align="center" />
         <el-table-column prop="imageCount" label="影像页" width="120" align="center" />
-        <el-table-column prop="explain" label="说明" width="120" align="center" />
+        <el-table-column prop="explain" label="说明" width="150" align="center" />
+        <el-table-column prop="carrierType" label="载体形态" width="120" align="center" />
         <!-- <el-table-column prop="memo" label="备注" width="120" align="center" /> -->
         <el-table-column label="操作" fixed="right" width="200" align="center">
           <template #default="scope">
             <el-button v-if="scope.row.hasImage === 1" size="small" type="primary" @click="handleClickAction(scope.row, 'lookImage')">影像</el-button>
             <el-button v-if="scope.row.hasIndex === 1" size="small" type="primary" @click="handleClickAction(scope.row, 'lookIndex')">全文</el-button>
-            <el-button v-if="scope.row.hasTree === 1" size="small" type="primary" @click="handleClickAction(scope.row, 'lookTree')">节点</el-button>
+            <el-button v-if="scope.row.hasTree === 1" size="small" type="primary" @click="handleClickAction(scope.row, 'lookTree')">Tree</el-button>
             <el-button size="small" type="primary" @click="handleClickAction(scope.row, 'lookVolume')">查看卷册</el-button>
             <el-button size="small" type="primary" @click="handleClickAction(scope.row, 'edit')">编辑</el-button>
             <el-popconfirm
@@ -395,11 +406,11 @@ onMounted(() => {
             </el-popconfirm>
             <div class="upload-box" v-if="scope.row.hasImage == 1">
               <input type="file" id="fileInput" @change="handleInputChange" accept=".xml" />
-              <label for="fileInput" class="label" @click="handleClickInput(scope.row, 'project')">目录解析</label>
+              <label for="fileInput" class="label" @click="handleClickInput(scope.row, 'project')">关联目录</label>
             </div>
             <div class="upload-box">
               <input type="file" id="tree" @change="handleInputChange" accept=".xml" />
-              <label for="tree" class="label" @click="handleClickInput(scope.row, 'tree')">节点解析</label>
+              <label for="tree" class="label" @click="handleClickInput(scope.row, 'tree')">关联Tree</label>
             </div>
           </template>
         </el-table-column>

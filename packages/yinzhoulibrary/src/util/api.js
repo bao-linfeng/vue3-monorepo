@@ -135,6 +135,9 @@ const catalog = {
   GCStatistics(param) {// 谱检索统计（卷数和影像页数）
     return request.get('/catalog/GCStatistics', param);
   },
+  searchGCDownload(param) {// 谱检索下载
+    return request.get('/catalog/searchGCDownload', param);
+  },
 };
 
 const volumeApi = {
@@ -155,6 +158,9 @@ const volumeApi = {
   },
   volumeStatistics(param) {// 卷册统计（影像页数）
     return request.get('/volume/volumeStatistics', param);
+  },
+  volumeKeyByStartSerialNumber(param) {// 根据startSerialNumber返回volumeKey
+    return request.get('/volume/volumeKeyByStartSerialNumber', param);
   },
 };
 

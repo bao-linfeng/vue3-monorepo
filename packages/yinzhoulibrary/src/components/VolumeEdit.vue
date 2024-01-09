@@ -28,15 +28,20 @@ const form = ref({
     'genealogyName': '',
 });
 
-const gcList = ref([{'label': '121', 'value': '232'}]);
+const gcList = ref([]);
 const gcKey = ref('');
 const isShow = ref(false);
 const remoteMethod = (e) => {
     if(form.value.genealogyName){
         searchGenealogyName(form.value.genealogyName);
     }else{
-        // gcList.value = [];
+        
     }
+}
+
+const handleClear = () => {
+    gcList.value = [];
+    isShow.value = false;
 }
 
 const handleClickSelect = (data) => {
@@ -158,23 +163,8 @@ onMounted(() => {
         <main class="main marginT20">
             <el-form :model="form" label-width="60px">
                 <el-form-item label="谱名" v-if="!dataKey">
-                    <!-- <el-select
-                        v-model="form.genealogyName"
-                        :filterable="true"
-                        :remote="true"
-                        placeholder="请输入谱名"
-                        :remote-method="remoteMethod"
-                        :loading="loading"
-                    >
-                        <el-option
-                            v-for="item in gcList"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select> -->
                     <div class="search-wrap">
-                        <el-input class="input w200" type="text" v-model="form.genealogyName" @change="remoteMethod" placeholder="请输入谱名" clearable />
+                        <el-input class="input w200" type="text" v-model="form.genealogyName" @keyup.enter="remoteMethod" @clear="handleClear" placeholder="请输入谱名" clearable />
                         <ul class="select style1" v-show="isShow">
                             <li v-for="item in gcList" :key="item.value" :title="item.label" :label="item.label" :value="item.value" @click="handleClickSelect(item)">{{item.label}}</li>
                         </ul>

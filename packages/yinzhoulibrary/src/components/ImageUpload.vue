@@ -184,7 +184,7 @@ onMounted(() => {
             </div>
         </div>
         <footer class="footer marginT20">
-            <el-button type="primary" @click="handleUploadImage">上传</el-button>
+            <el-button v-if="isShow" type="primary" @click="handleUploadImage">上传</el-button>
             <el-button @click="close">取消</el-button>
         </footer>
     </section>

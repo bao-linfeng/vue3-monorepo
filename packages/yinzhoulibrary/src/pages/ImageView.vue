@@ -29,9 +29,13 @@ const volumeKey = ref(getQueryVariable('volumeKey'));
 // 监控卷册
 watch(volumeKey, (nv, ov) => {
   console.log(nv);
-  page.value = 1;
-  currentPage.value = 1;
   imageDetail.value = '';
+  if(startSerialNumber.value){
+    
+  }else{
+    page.value = 1;
+    currentPage.value = 1;
+  }
   refreshImageList({'vKey': volumeKey.value});
 });
 // 卷册数据
@@ -54,8 +58,18 @@ watch(imageList, () => {
       type: 'warning',
     });
   }
-  refreshImageDetail({'iKey': imageList.value[page.value - 1]._key});
-  isText.value == 1 ? imageOcrResult(imageList.value[page.value - 1].serialNumber) : null;
+  if(startSerialNumber.value){
+    imageList.value.forEach((ele, index) => {
+      if(ele.serialNumber === startSerialNumber.value){
+        page.value = currentPage.value = index + 1;
+      }
+    });
+
+    startSerialNumber.value = '';
+  }else{
+    refreshImageDetail({'iKey': imageList.value[page.value - 1]._key});
+    isText.value == 1 ? imageOcrResult(imageList.value[page.value - 1].serialNumber) : null;
+  }
 });
 
 // 影像详情模块
@@ -97,7 +111,7 @@ const imageOcrResult = async (serialNumber) => {
       return ele;
     });
 
-    console.log(OcrResultO);
+    // console.log(OcrResultO);
     for(let key in OcrResultO){
       ocrArr.push(OcrResultO[key]);
     }
@@ -148,15 +162,45 @@ watch(page, (nv, ov) => {
 const imageH = ref(window.innerHeight - 60 - 60 - 60);
 // 目录模块
 const analysis = ref('');
+const startSerialNumber = ref('');
 // 目录点击
 const handleClickAnalysis = (data) => {
+  let currentIndex = -1;
   analysis.value = data.title;
+  startSerialNumber.value = data.startSerialNumber;
+
   imageList.value.forEach((ele, index) => {
     if(ele.serialNumber === data.startSerialNumber){
-      page.value = currentPage.value = index + 1;
+      currentIndex = index + 1;
     }
   });
+
+  if(currentIndex === -1){
+    console.log('不在当前卷册');
+    volumeKeyByStartSerialNumber(data.startSerialNumber);
+  }else{
+    page.value = currentPage.value = currentIndex;
+  }
 }
+// 根据startSerialNumber返回volumeKey
+const volumeKeyByStartSerialNumber = async (startSerialNumber) => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)',
+  });
+  const result = await volumeApi.volumeKeyByStartSerialNumber({
+    'gcKey': dataKey.value,
+    'startSerialNumber': startSerialNumber,
+  });
+  loading.close();
+  if(result.status == 200){
+    volumeKey.value = result.result;
+  }else{
+    createMsg(result.msg);
+  }
+};
+
 // 目录数据
 const [analysisList] = useDetail(catalog.getCatalogAnalysisResult, {'gcKey': dataKey.value},
   {
@@ -179,11 +223,14 @@ const handleSearch = () => {
 const handleClickText = (data) => {
   if(data.vKey === volumeKey.value){
     data.pageNumber === page.value ? null : page.value = currentPage.value = data.pageNumber;
-    textAll.value = data.index;
-    textKey.value = data.content+'-'+data.volumeNumber+'-'+data.pageNumber+'页';
+    // textAll.value = data.index;
+    // textKey.value = data.content+'-'+data.volumeNumber+'-'+data.pageNumber+'页';
   }else{
-
+    volumeKey.value = data.vKey;
+    startSerialNumber.value = data.serialNumber;
   }
+  textAll.value = data.index;
+  textKey.value = data.content+'-'+data.volumeNumber+'-'+data.pageNumber+'页';
 }
 // 全文数据
 const [textList, refreshContent] = useDetail(imageApi.imageSearchSingleGC, {'gcKey': dataKey.value, 'content': keyWord.value},
