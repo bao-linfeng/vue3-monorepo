@@ -35,10 +35,10 @@ const toggle = () => {
 <template>
     <div class="node" :class="{nodeHasLittleBrother: node.HasLittleBrother == 1}">
         <div class="name-box">
-            <i class="name" @click="handleClickNode(node)" :class="{hasChild: node.children && node.children.length, noline: !expanded, select: activeKey == node._key}" :style="{width: (node.Fullname || node.Given).length*14+'px'}" :id="node._key+'-'+node.Generation">{{node.Fullname || node.Given}}<img v-if="node.children && node.children.length" class="toggle" @click.stop="toggle" :src="expanded ? open : close"></i>
+            <i class="name" @click="handleClickNode(node)" :class="{hasChild: node.children && node.children.length, noline: !expanded, select: activeKey == node._key}" :style="{width: (node.Fullname || node.Given).length*14+'px'}" :id="node._key+'-'+node.generation">{{node.Fullname || node.Given}}<img v-if="node.children && node.children.length" class="toggle" @click.stop="toggle" :src="expanded ? open : close"></i>
             <i class="name red" @click="handleClickNode(item)" :class="{select: activeKey == item._key}" v-for="(item, index) in node.spouseOrder" :key="index" :style="{width: item.Fullname.length*18+'px'}">{{item.Fullname}}</i>
         </div>
-        <div class="node-list" v-if="node.children && node.children.length > 0" v-show="expanded">
+        <div class="node-list" v-if="node.children && node.children.length > 0 && expanded">
             <TreeNode v-for="child in node.children" :key="child._key" :node="child" />
         </div>
     </div>

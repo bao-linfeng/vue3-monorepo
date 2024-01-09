@@ -48,6 +48,7 @@ const [imageList, refreshImageList, , total] = useDetail(imageApi.getImageList, 
 // 监控影像列表
 watch(imageList, () => {
   if(!imageList.value.length){
+    imageDetail.value = '';
     return ElMessage({
       message: '该卷册暂无影像',
       type: 'warning',

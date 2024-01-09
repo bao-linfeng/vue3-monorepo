@@ -8,20 +8,14 @@ import { getQueryVariable, createMsg } from '../util/ADS';
 import { ElLoading } from 'element-plus';
 import cover from '../assets/cover.svg';
 import TreeModule from '../components/TreeModule.vue';
+import RadialCharts from '../components/RadialCharts.vue';
 
 const router = useRouter();
 const global = useGlobalStore();
 const { userInfo, pathActive, orgMemberInfo, token, activeKey, activeLevel } = storeToRefs(global);
 const { saveProperyValue } = global;
 
-const props = defineProps({
-  msg: String,
-});
-
-const zoomChartsData = ref({
-   nodes: [],
-   links: []
-});
+const zoomChartsData = ref({});
 
 let members = {};
 const rootMembers = ref({'Fullname': '', 'Given': ''});
@@ -42,12 +36,9 @@ const getTotalTree = async () => {
       rootKey.value = result.result.root;
       saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
       members = result.result.members;
+      let startTime = Date.now();
 
       for(let key in members){
-         // if(Number(members[key].Generation) >= generation.value){
-         //    generation.value = Number(members[key].Generation);
-         // }
-
          if(members[key].isMember != 1){
             members[key].children = [];
             members[key].spouseOrder = [];
@@ -66,6 +57,8 @@ const getTotalTree = async () => {
          }
       }
 
+      console.log('子节点和妻子节点数据处理', Date.now() - startTime);
+
       rootMembers.value = members[rootKey.value]; 
       // console.log(rootMembers.value);
 
@@ -74,7 +67,7 @@ const getTotalTree = async () => {
          let Generation = 0;
          if(data.length){
             for(let i = 0; i < data.length; i++){
-               Generation = data[i].Generation || 0;
+               Generation = data[i].generation || 0;
                
                if(!personArr[Generation]){
                   personArr[Generation] = [];
@@ -83,7 +76,7 @@ const getTotalTree = async () => {
                      GenerationList.value.push({
                         'name': data[i].Fullname || data[i].Given,
                         '_key': data[i]._key,
-                        'Generation': data[i].Generation,
+                        'generation': data[i].generation,
                      });
                   }
                }
@@ -102,7 +95,8 @@ const getTotalTree = async () => {
       }
 
       getChildren([members[rootKey.value]]);
-      console.log(GenerationList.value);
+      // console.log(GenerationList.value);
+      console.log('世代递归数据处理', Date.now() - startTime);
 
       if(keyWord.value){
          getPositionNode();
@@ -113,7 +107,7 @@ const getTotalTree = async () => {
 };
 
 watch(activeKey, () => {
-   saveProperyValue({'label': 'activeLevel', 'value': Number(members[activeKey.value].Generation)});
+   saveProperyValue({'label': 'activeLevel', 'value': Number(members[activeKey.value].generation)});
    detail.value = members[activeKey.value];
    if(type.value == 2){
       handleScrollIntoView(activeLevel.value);
@@ -160,131 +154,8 @@ const detail = ref({});
 const nodes = ref([]);
 const keyWord = ref('');
 
-const netChart = ref('');
-const circleRect = ref({
-   w: 0,
-   h: 0,
-   x: 0,
-   y: 0,
-});
-const initZoomCharts = (data, rootKey) => {
-   netChart.value ? netChart.value.remove() : null;
-   netChart.value = null;
-   netChart.value = new NetChart({
-      navigation: {
-         focusNodeExpansionRadius: 2,
-         initialNodes: [rootKey],
-         mode: "focusnodes"
-      },
-      style: {
-         node: {
-            display: "image",
-            lineWidth: 4,
-            lineColor: "#0EA0B8",
-            imageCropping: true
-         },
-         "nodeStyleFunction": function(node) {
-            nodeStyle(node);
-         },
-         "linkStyleFunction": function(link) {                 
-            link.fillColor = "#F8EEDF";  
-            link.label = link.data.type;                  
-            link.labelStyle.textStyle.fillColor = '#fff';
-            link.labelStyle.padding = 2;
-            link.labelStyle.textStyle.font ='10px SourceHanSerifCN-Regular';  
-            link.labelStyle.backgroundStyle.fillColor = 'transparent';             
-            link.labelStyle.backgroundStyle.lineColor = 'transparent';   
-            link.toDecoration = 'arrow';
-            link.labelStyle.rotateWithLink = true; //关系label方向顺着线条方向摆放                
-         }
-      },
-      area: { height: null },
-      container: "relationmap",
-      data: {
-         preloaded: data,
-         preloadNodeLinks: true,              
-      },
-      toolbar: {
-         fullscreen: true,
-         enabled: true
-      },
-      interaction: {
-         resizing: {
-               enabled: false
-         }
-      },
-      layout: {
-         nodeSpacing: 120,
-         mode: 'dynamic', //radial dynamic      
-      },
-      nodeMenu: {
-         enabled: false,           
-      },
-      interaction: {
-         zooming: {
-            zoomExtent: [0.1, 2],
-            autoZoomExtent: [0.1, 1],
-            doubleClickZoom: null,//双击空白将触发按此值放大
-            autoZoomPositionElasticity: 5
-         },                
-      },
-      events: {
-         onClick: (event, args) => {
-            if(event.clickNode){       
-               detail.value = event.clickNode.data;                        
-               event.preventDefault();
-            }
-         },   
-         onDoubleClick: (event, args) => {
-            if(event.clickNode){    
-               event.clickNode.data.isMember == 1 ? getFiveGeneration(event.clickNode.data._key) : null;                             
-               event.preventDefault();
-            }
-         },
-         onPositionChange: function(args){
-            circleRect.value = {
-               w: args.nodes[0].shape.hHeight*4,
-               h: args.nodes[0].shape.hWidth*4,
-               x: args.nodes[0].shape.x-2*args.nodes[0].shape.hWidth,
-               y: args.nodes[0].shape.y-2*args.nodes[0].shape.hWidth + 76,
-            }               
-         },    
-      },
-   })
-}
-
-const nodeStyle = (node) =>{ 
-   node.radius = 30;
-   node.lineColor = '#0EA0B8';
-   node.lineWidth = 4;  
-
-   node.items = [];
-   node.display = "image";           
-   node.imageCropping = true;
-   node.label = node.data.name;
-   node.image = cover;
-   node.labelStyle.padding = 10;   
-   node.labelStyle.margin = -30;     
-   node.labelStyle.textStyle.fillColor = "#000";                 
-   node.labelStyle.backgroundStyle.fillColor = "transparent";   
-   
-   if(node.data.Sex != 'male'){
-      node.lineColor = '#ff7963';
-   }
-
-   if(node.hovered){
-      node.radius = 35; 
-      node.lineWidth = 5;  
-      node.labelStyle.margin = -35; 
-   } 
-
-   if(node.focused){           
-      node.radius = 40;
-      node.lineWidth = 6;  
-      node.labelStyle.margin = -40;  
-   }
-
-   return node;
+const getDetail = (data) => {
+   detail.value = data;
 }
 
 const personList = ref([]);
@@ -312,8 +183,7 @@ const getPositionNode = async () => {
          getFiveGeneration(rootKey.value)
       }else{
          if(keyWord.value){
-            // rootMembers.value = members[rootKey.value]; 
-            // detail.value = members[rootKey.value];
+
          }else{
 
          }
@@ -325,6 +195,7 @@ const getPositionNode = async () => {
 
 // 获取5代数据
 const getFiveGeneration = async (id) => {
+   zoomChartsData.value = {};
    const loading = ElLoading.service({
       lock: true,
       text: 'Loading',
@@ -350,8 +221,6 @@ const getFiveGeneration = async (id) => {
 
       personList.value = result.result.personList;
       rootKey.value = id;
-
-      initZoomCharts(zoomChartsData.value, rootKey.value);
    }else{
       createMsg(result.msg);
    }
@@ -383,9 +252,6 @@ const handleClickNode = (data) => {
    nodes.value = [];
    if(type.value == 1){
       getFiveGeneration(rootKey.value)
-   }else{
-      // rootMembers.value = members[rootKey.value]; 
-      // detail.value = members[rootKey.value];
    }
 }
 
@@ -427,6 +293,7 @@ const goBack = () => {
 onMounted(() => {
    dataKey.value = getQueryVariable('id');
    genealogyName.value = getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '';
+
    keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
    if(type.value == 1){
       keyWord.value ? getPositionNode() : getFirstAncestor();
@@ -448,17 +315,26 @@ onMounted(() => {
             <li :class="{active: type === item.value}" v-for="(item, index) in typeList" :key="index" @click="handleClickTab(item)">{{item.label}}</li>
          </ul>
       </header>
-      <i class="focus-circle" v-if="type == 1" :style="{width: circleRect.w+'px', height: circleRect.h+'px', left: circleRect.x+'px', top: circleRect.y+'px'}"></i>
       <main class="main">
-         <div v-if="type == 1" class="relationmap" id="relationmap"></div>
-         <TreeModule v-else :treeData="rootMembers" :generation="GenerationList" />
+         <RadialCharts 
+            v-if="type == 1 && zoomChartsData.nodes" 
+            :zoomChartsData="zoomChartsData" 
+            :rootKey="rootKey"
+            v-on:get-detail="getDetail"
+            v-on:get-key="getFiveGeneration"
+         />
+         <TreeModule 
+           v-if="type == 2" 
+           :treeData="rootMembers" 
+           :generation="GenerationList" 
+         />
       </main>
       <aside class="aside">
          <div class="search-box">
             <input class="search" type="text" v-model="keyWord" placeholder="请输入关键字或世代数" @keyup.enter="handleSearch" >
             <img class="search-icon" src="../assets/搜索.svg" alt="">
             <ul class="nodeList style1" v-if="nodes.length">
-               <li v-for="(item, index) in nodes" :class="{active: rootKey == item._key}" :key="index" @click="handleClickNode(item)">{{item.Fullname}}</li>
+               <li v-for="(item, index) in nodes" :class="{active: rootKey == item._key}" :key="index" @click="handleClickNode(item)">{{item.Fullname}}({{item.generation}}世)</li>
             </ul>
          </div>
          <article class="article style1" v-if="detail._key">
@@ -516,9 +392,6 @@ onMounted(() => {
             </div>
          </article>
       </aside>
-      <footer class="footer" v-if="type == 1">
-         
-      </footer>
    </section>
 </template>
 
@@ -560,7 +433,7 @@ onMounted(() => {
          li{
             margin: 0 20px;
             cursor: pointer;
-            opacity: 0.8;
+            opacity: 0.3;
             &.active{
                opacity: 1;
             }
@@ -573,34 +446,7 @@ onMounted(() => {
       left: 0;
       width: calc(100% - 380px);
       height: 100%;
-      .relationmap{
-         position: relative;
-         width: 100%;
-         height: 100%;
-      }
    }
-   .focus-circle{
-      position: absolute;
-      opacity: 0.3;
-      background: url('../assets/circle.png') 50% 50% no-repeat;
-      background-size: cover;
-      animation-name: rotate; /* 指定要应用的动画名称 */
-      animation-duration: 2s; /* 设置动画持续时间 */
-      animation-iteration-count: infinite; /* 无限次重复播放动画 */
-      animation-timing-function: linear; /* 线性过渡效果 */
-   }
-   .footer{
-      position: absolute;
-      bottom: 0;
-      right: 380px;
-      width: 200px;
-      height: 50px;
-      background-color: #534f4a;
-   }
-}
-@keyframes rotate {
-  0% { transform: rotate(0deg); } /* 初始状态为不旋转 */
-  100% { transform: rotate(360deg); } /* 结束状态为完全旋转一周（360度）*/
 }
 .aside{
    position: absolute;

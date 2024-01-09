@@ -46,6 +46,7 @@ const createSingleGC = async () => {
     'hasVolume': form.value.hasVolume,
     'explain': form.value.explain,
     'owner': form.value.owner,
+    'carrierType': form.value.carrierType,
     'inStoreSerialName': form.value.inStoreSerialName,
 
     'isCreateVolume': form.value.isCreateVolume ? 1 : 0,
@@ -101,16 +102,20 @@ const close = (f = false) => {
 }
 
 const versionList = ref([
-    {'label': '版本类型', 'value': ''},
-    {'label': '刻本', 'value': '刊本'},
+    // {'label': '版本类型', 'value': ''},
+    {'label': '刻本', 'value': '刻本'},
     {'label': '刊本', 'value': '刊本'},
     {'label': '写本', 'value': '写本'},
 ]);
 
 const singleOrTwoList = ref([
-    {'label': '单双页', 'value': ''},
+    // {'label': '单双页', 'value': ''},
     {'label': '单页', 'value': '单页'},
     {'label': '双页', 'value': '双页'},
+]);
+
+const carrierTypeList = ref([{'label': '纸质', 'value': '纸质'},
+    {'label': '电子谱', 'value': '电子谱'},
 ]);
 
 const dataKey = ref('');
@@ -132,6 +137,7 @@ const form = ref({
     'hasVolume': '',
     'explain': '',
     'owner': '',
+    'carrierType': '',
     'inStoreSerialName': '',
     'isCreateVolume': '',
 });
@@ -153,6 +159,7 @@ const field_branch = ref([
     {'fieldMeans': '实拍册数', 'fieldName': 'hasVolume', 'required': true, 'type': 'text'},
     {'fieldMeans': '说明', 'fieldName': 'explain', 'type': 'textarea'},
     {'fieldMeans': '馆藏地', 'fieldName': 'owner', 'type': 'text'},
+    {'fieldMeans': '载体类型', 'fieldName': 'carrierType', 'type': 'text'},
     {'fieldMeans': '入库编号', 'fieldName': 'inStoreSerialName', 'type': 'text'},
 ]);
 
@@ -176,8 +183,8 @@ onMounted(() => {
             <el-form :model="form" label-width="90px">
                 <el-form-item v-for="(item, index) in field_branch" :key="index" :label="item.fieldMeans+(item.required ? '*' : '')">
                     <!-- v-if="['version', 'singleOrTwo'].indexOf(item.fieldName) === -1"  -->
-                    <el-input class="w200" :type="item.type" :rows="3" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans" />
-                    <!-- <el-select class="w200" v-if="'version' === item.fieldName" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans">
+                    <el-input class="w200" v-if="['version', 'singleOrTwo', 'carrierType'].indexOf(item.fieldName) === -1" :type="item.type" :rows="3" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans" />
+                    <el-select class="w200" v-if="'version' === item.fieldName" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans">
                         <el-option
                             v-for="item2 in versionList"
                             :key="item2.value"
@@ -192,7 +199,15 @@ onMounted(() => {
                             :label="item2.label"
                             :value="item2.value"
                         />
-                    </el-select> -->
+                    </el-select>
+                    <el-select class="w200" v-if="'carrierType' === item.fieldName" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans">
+                        <el-option
+                            v-for="item2 in carrierTypeList"
+                            :key="item2.value"
+                            :label="item2.label"
+                            :value="item2.value"
+                        />
+                    </el-select>
                 </el-form-item>
 
                 <el-form-item v-if="!dataKey">

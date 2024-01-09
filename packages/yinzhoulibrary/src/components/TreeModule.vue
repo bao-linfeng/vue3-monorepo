@@ -30,7 +30,7 @@ const handleClickLevel = (data) => {
 <template>
     <section class="tree-wrap">
         <div class="generation-box style1">
-            <div class="generation" v-for="(item, index) in generation" :key="index" :id="index" :class="{active: activeLevel == item.Generation}" @click="handleClickLevel(item)">{{item.Generation}}世</div>
+            <div class="generation" v-for="(item, index) in generation" :key="index" :id="index" :class="{active: activeLevel == item.generation}" @click="handleClickLevel(item)">{{item.generation}}世</div>
             <div class="generation-h"></div>
         </div>
         <div class="tree-box style1">
