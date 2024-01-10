@@ -266,7 +266,7 @@ onMounted(() => {
             <el-option
               v-for="(item,index) in volumeList"
               :key="index"
-              :label="item.volumeNumber+'('+item.internalSerialNumber+')'"
+              :label="item.internalSerialNumber+'：'+item.volumeNumber"
               :value="item._key">
             </el-option>
           </el-select>

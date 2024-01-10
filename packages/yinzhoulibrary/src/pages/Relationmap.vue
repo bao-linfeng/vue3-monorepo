@@ -17,11 +17,11 @@ const { saveProperyValue } = global;
 
 const zoomChartsData = ref({});
 
-let members = {};
+let members = {}, startLevel = 0;
 const rootMembers = ref({'Fullname': '', 'Given': ''});
 const GenerationList = ref([]);
 
-const getTotalTree = async () => {
+const getTotalTree = async (f = true) => {
    GenerationList.value = [];
    const loading = ElLoading.service({
       lock: true,
@@ -34,11 +34,14 @@ const getTotalTree = async () => {
    loading.close();
    if(result.status == 200){
       rootKey.value = result.result.root;
+      startLevel = result.result.start;
       saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
+      
       members = result.result.members;
       let startTime = Date.now();
 
       for(let key in members){
+         members[key].Generation = startLevel + members[key].generation - 1;
          if(members[key].isMember != 1){
             members[key].children = [];
             members[key].spouseOrder = [];
@@ -60,14 +63,14 @@ const getTotalTree = async () => {
       console.log('子节点和妻子节点数据处理', Date.now() - startTime);
 
       rootMembers.value = members[rootKey.value]; 
-      // console.log(rootMembers.value);
+      console.log(rootMembers.value);
 
       let personArr = [];
       function getChildren(data){
          let Generation = 0;
          if(data.length){
             for(let i = 0; i < data.length; i++){
-               Generation = data[i].generation || 0;
+               Generation = (data[i].generation+startLevel-1) || 0;
                
                if(!personArr[Generation]){
                   personArr[Generation] = [];
@@ -77,6 +80,7 @@ const getTotalTree = async () => {
                         'name': data[i].Fullname || data[i].Given,
                         '_key': data[i]._key,
                         'generation': data[i].generation,
+                        'Generation': data[i].generation+startLevel-1,
                      });
                   }
                }
@@ -99,31 +103,19 @@ const getTotalTree = async () => {
       console.log('世代递归数据处理', Date.now() - startTime);
 
       if(keyWord.value){
-         getPositionNode();
+         if(activePedigreeKey.value){
+            handleClickNode(activePedigreeKey.value)
+            activePedigreeKey.value = '';
+         }else{
+            getPositionNode();
+         }
       }
    }else{
       createMsg(result.msg);
    }
 };
 
-watch(activeKey, () => {
-   saveProperyValue({'label': 'activeLevel', 'value': Number(members[activeKey.value].generation)});
-   detail.value = members[activeKey.value];
-   if(type.value == 2){
-      handleScrollIntoView(activeLevel.value);
-      handleScrollIntoView(activeKey.value+'-'+activeLevel.value);
-   }
-});
-
-const handleScrollIntoView = (id) => {
-   let timer = setTimeout(() => {
-      clearTimeout(timer);
-      timer = null;
-      document.getElementById(id+'').scrollIntoView();
-   }, 200);
-}
-
-const getGCPedigreeListFrontEnd = async () => {
+const getGCPedigreeListFrontEnd = async (f = true) => {
    const loading = ElLoading.service({
       lock: true,
       text: 'Loading',
@@ -134,12 +126,16 @@ const getGCPedigreeListFrontEnd = async () => {
    });
    loading.close();
    if(result.status == 200){
-      pedigreeList.value = result.result.forEach((ele, index) => {
-         if(index === 0){
+      pedigreeList.value = result.result.map((ele, index) => {
+         if(index === 0 && f){
             pedigreeKey.value = ele._key;
+            if(type.value == 1){
+               rootKey.value = ele.ancestorKey;
+               getFiveGeneration(rootKey.value);
+            }
          }
+         return ele;
       });
-      getTotalTree();
    }else{
       createMsg(result.msg);
    }
@@ -158,6 +154,29 @@ const getDetail = (data) => {
    detail.value = data;
 }
 
+watch(pedigreeKey, () => {
+   if(!pedigreeKey.value){
+      return;
+   }
+   if(type.value == 1){
+      pedigreeList.value.forEach((ele) => {
+         if(ele._key === pedigreeKey.value){
+            if(activePedigreeKey.value){
+               rootKey.value = activePedigreeKey.value._key;
+               activePedigreeKey.value = '';
+               keyWord.value = '';
+               nodes.value = [];
+            }else{
+               rootKey.value = ele.ancestorKey;
+            }
+            getFiveGeneration(rootKey.value);
+         }
+      });
+   }else{
+      getTotalTree();
+   }
+});
+
 const personList = ref([]);
 // 定位节点
 const getPositionNode = async () => {
@@ -172,22 +191,8 @@ const getPositionNode = async () => {
    });
    loading.close();
    if(result.status == 200){
-      nodes.value = result.result.map((ele, index) => {
-         if(index === 0){
-            rootKey.value = ele._key;
-         }
-         return ele;
-      });
-      saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
-      if(type.value == 1){
-         getFiveGeneration(rootKey.value)
-      }else{
-         if(keyWord.value){
-
-         }else{
-
-         }
-      }
+      nodes.value = result.result;
+      handleClickNode(nodes.value[0], false);
    }else{
       createMsg(result.msg);
    }
@@ -245,14 +250,41 @@ const getFirstAncestor = async () => {
    }
 };
 
-const handleClickNode = (data) => {
-   rootKey.value = data._key;
-   saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
-   keyWord.value = '';
-   nodes.value = [];
-   if(type.value == 1){
-      getFiveGeneration(rootKey.value)
+const handleClickNode = (data, f = true) => {
+   console.log(data, f);
+   if(pedigreeKey.value == data.pedigreeKey){
+      rootKey.value = data._key;
+      saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
+      if(f){
+         keyWord.value = '';
+         nodes.value = [];
+      }
+      if(type.value == 1){
+         getFiveGeneration(rootKey.value)
+      }
+   }else{
+      activePedigreeKey.value = data;
+      pedigreeKey.value = data.pedigreeKey;
    }
+}
+
+const activePedigreeKey = ref('');
+
+watch(activeKey, () => {
+   if(type.value == 2){
+      detail.value = members[activeKey.value];
+      saveProperyValue({'label': 'activeLevel', 'value': Number(members[activeKey.value].Generation)});
+      handleScrollIntoView(activeLevel.value);
+      handleScrollIntoView(activeKey.value+'-'+activeLevel.value);
+   }
+});
+
+const handleScrollIntoView = (id) => {
+   let timer = setTimeout(() => {
+      clearTimeout(timer);
+      timer = null;
+      document.getElementById(id+'').scrollIntoView();
+   }, 200);
 }
 
 const handleSearch = () => {
@@ -267,7 +299,7 @@ const handleClickName = (data) => {
    data.isMember == 1 ? getFiveGeneration(data._key) : null;  
 }
 
-const type = ref('1');
+const type = ref('2');
 const typeList = ref([
    {'label': '人物图谱', 'value': '1'},
    {'label': '家谱世系', 'value': '2'},
@@ -277,12 +309,24 @@ const handleClickTab = (data) => {
    if(type.value == data.value){
       return;
    }
+   pedigreeKey.value = '';
    type.value = data.value;
+
+   init();
+}
+
+const init = () => {
    keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
    if(type.value == 1){
-      keyWord.value ? getPositionNode() : getFirstAncestor();
+      getGCPedigreeListFrontEnd(keyWord.value ? false : true);
+      if(keyWord.value){
+         getPositionNode();
+      }
    }else{
-      getGCPedigreeListFrontEnd();
+      getGCPedigreeListFrontEnd(!keyWord.value);
+      if(keyWord.value){
+         getPositionNode();
+      }
    }
 }
 
@@ -294,12 +338,7 @@ onMounted(() => {
    dataKey.value = getQueryVariable('id');
    genealogyName.value = getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '';
 
-   keyWord.value = getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '';
-   if(type.value == 1){
-      keyWord.value ? getPositionNode() : getFirstAncestor();
-   }else{
-      getGCPedigreeListFrontEnd();
-   }
+   init();
 });
 
 </script>
@@ -310,10 +349,15 @@ onMounted(() => {
          <div class="left">
             <img src="../assets/返回白色.svg" @click="goBack" />
             <h3 class="title">{{genealogyName}}</h3>
+            <el-select v-model="pedigreeKey" class="marginL20 w150" placeholder="谱系分支">
+               <el-option
+                  v-for="item in pedigreeList"
+                  :key="item._key"
+                  :label="item.title"
+                  :value="item._key"
+               />
+            </el-select>
          </div>
-         <ul class="tab-wrap">
-            <li :class="{active: type === item.value}" v-for="(item, index) in typeList" :key="index" @click="handleClickTab(item)">{{item.label}}</li>
-         </ul>
       </header>
       <main class="main">
          <RadialCharts 
@@ -329,12 +373,15 @@ onMounted(() => {
            :generation="GenerationList" 
          />
       </main>
+      <ul class="tab-wrap">
+         <li :class="{active: type === item.value}" v-for="(item, index) in typeList" :key="index" @click="handleClickTab(item)">{{item.label}}</li>
+      </ul>
       <aside class="aside">
          <div class="search-box">
-            <input class="search" type="text" v-model="keyWord" placeholder="请输入关键字或世代数" @keyup.enter="handleSearch" >
+            <input class="search" type="text" v-model="keyWord" placeholder="请输入姓名关键字或世代数" @keyup.enter="handleSearch" >
             <img class="search-icon" src="../assets/搜索.svg" alt="">
             <ul class="nodeList style1" v-if="nodes.length">
-               <li v-for="(item, index) in nodes" :class="{active: rootKey == item._key}" :key="index" @click="handleClickNode(item)">{{item.Fullname}}({{item.generation}}世)</li>
+               <li v-for="(item, index) in nodes" :class="{active: rootKey == item._key}" :key="index" @click="handleClickNode(item)">{{item.Fullname}}({{item.pedigreeName}}-{{item.Generation}}世)</li>
             </ul>
          </div>
          <article class="article style1" v-if="detail._key">
@@ -422,23 +469,6 @@ onMounted(() => {
             cursor: pointer;
          }
       }
-      .tab-wrap{
-         position: absolute;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         display: flex;
-         align-items: center;
-         font-size: 20px;
-         li{
-            margin: 0 20px;
-            cursor: pointer;
-            opacity: 0.3;
-            &.active{
-               opacity: 1;
-            }
-         }
-      }
    }
    .main{
       position: absolute;
@@ -446,6 +476,24 @@ onMounted(() => {
       left: 0;
       width: calc(100% - 380px);
       height: 100%;
+   }
+   .tab-wrap{
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      font-size: 20px;
+      background-color: #534f4a;
+      li{
+         margin: 0 20px;
+         cursor: pointer;
+         opacity: 0.3;
+         &.active{
+            opacity: 1;
+         }
+      }
    }
 }
 .aside{

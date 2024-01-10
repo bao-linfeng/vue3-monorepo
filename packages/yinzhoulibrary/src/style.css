@@ -179,21 +179,31 @@ i{
 /* 树 */
 .node {
   position: relative;
+  display: inline-block;
+}
+.root::before{
+  content: '';
+  width: 100%;
+  height: 1px;
+  background-color: #999;
+  position: absolute;
+  top: 40px;
+  left: 10px;
 }
 .nodeHasLittleBrother::before{
   content: '';
   width: 100%;
   height: 1px;
-  background-color: #f00;
+  background-color: #999;
   position: absolute;
-  top: 10px;
-  left: left;
+  top: -20px;
+  left: 10px;
 }
 .name-box{
   margin-bottom: 40px;
   display: flex;
 }
-.name{
+.node-name{
   position: relative;
   display: inline-block;
   padding: 0 12px 0 6px;
@@ -204,8 +214,8 @@ i{
   cursor: pointer;
   margin-right: 20px;
 }
-.name.select{
-  background-color: #999;
+.node-name.select{
+  background-color: #ddd;
 }
 .toggle{
   position: absolute;
@@ -219,23 +229,32 @@ i{
   content: '';
   width: 1px;
   height: 40px;
-  background-color: #f00;
+  background-color: #999;
   position: absolute;
   top: 100%;
+  left: 10px;
+}
+.hasFather::after{
+  content: '';
+  width: 1px;
+  height: 20px;
+  background-color: #999;
+  position: absolute;
+  bottom: 100%;
   left: 10px;
 }
 .hasChild.noline::before{
   display: none;
 }
 .red{
-  color: #f00;
   padding:  0 6px;
+  background-color: Pink;
 }
 .red::before{
   content: '';
   width: 20px;
   height: 1px;
-  background-color: #f00;
+  background-color: #999;
   position: absolute;
   top: 50%;
   right: 100%;

@@ -3,7 +3,7 @@ import {createMsg} from './ADS.js'
 let baseURL = 'https://nbyzdata.qingtime.cn';
 let uploadFileURL = '';
 
-if(window.location.origin.indexOf('nbyz.1jiapu.com') > -1){
+if(window.location.origin.indexOf('nbyz.1jiapu.com') > -1 || window.location.origin.indexOf('jiapu.yzlib.com.cn') > -1){
   baseURL = 'https://nbyzdata.1jiapu.com'
 }
 

@@ -21,7 +21,7 @@ const field_main = ref([
   {'fieldMeans': '堂号', 'fieldName': 'hall'},
   {'fieldMeans': '作者', 'fieldName': 'authors'},
   {'fieldMeans': '总卷数', 'fieldName': 'volume'},
-  {'fieldMeans': '页数', 'fieldName': 'images'},
+  {'fieldMeans': '页数', 'fieldName': 'imageCount'},
   {'fieldMeans': '摘要', 'fieldName': 'explain'},
 ]);
 

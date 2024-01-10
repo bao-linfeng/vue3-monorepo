@@ -113,6 +113,18 @@ const goBack = () => {
   router.push('/');
 }
 
+const hasImageList = ref([
+  {'label': '影像', 'value': ''},
+  {'label': '有影像', 'value': '1'},
+  {'label': '无影像', 'value': '2'},
+]);
+
+const hasIndexList = ref([
+  {'label': '全文', 'value': ''},
+  {'label': '有全文', 'value': '1'},
+  {'label': '无全文', 'value': '2'},
+]);
+
 onMounted(() => {
   tab.value = Number(getQueryVariable('tab')) || 0;
   GCResolverFrontEnd();
@@ -128,16 +140,22 @@ onMounted(() => {
       <!-- search -->
       <section class="search-wrap">
         <el-input v-for="(item, index) in searchParameterList" :key="index" v-model="SearchParameters[item.value]" class="w20p" :placeholder="'请输入'+item.label" clearable />
-        <el-radio-group class="w20p" v-model="SearchParameters.hasImage">
-          <el-radio :label="''">全部影像</el-radio>
-          <el-radio :label="'1'">有影像</el-radio>
-          <el-radio :label="'2'">无影像</el-radio>
-        </el-radio-group>
-        <el-radio-group class="w20p" v-model="SearchParameters.hasIndex">
-          <el-radio :label="''">全部索引</el-radio>
-          <el-radio :label="'1'">有索引</el-radio>
-          <el-radio :label="'2'">无索引</el-radio>
-        </el-radio-group>
+        <el-select v-model="SearchParameters.hasImage" class="w20p" placeholder="影像">
+            <el-option
+              v-for="item in hasImageList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+          <el-select v-model="SearchParameters.hasIndex" class="w20p" placeholder="全文">
+            <el-option
+              v-for="item in hasIndexList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         <el-button class="w20p" type="primary" @click="handleSearch('')">检索</el-button>
       </section>
       <!-- tab -->
@@ -190,7 +208,7 @@ onMounted(() => {
                 <button class="btn" @click="handleClickAction(scope.row, 'look')">查看</button>
                 <button class="btn" v-if="scope.row.hasImage == 1" @click="handleClickAction(scope.row, 'image')">影像</button>
                 <button class="btn" v-if="scope.row.hasIndex == 1" @click="handleClickAction(scope.row, 'text')">全文</button>
-                <button class="btn" v-if="scope.row.hasTreeNew == 1" @click="handleClickAction(scope.row, 'tree')">节点</button>
+                <button class="btn" v-if="scope.row.hasTreeNew == 1" @click="handleClickAction(scope.row, 'tree')">Tree</button>
               </template>
             </el-table-column>
           </el-table>

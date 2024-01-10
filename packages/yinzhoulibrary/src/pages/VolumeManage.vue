@@ -172,8 +172,8 @@ onMounted(() => {
         <el-table-column prop="genealogyName" label="谱名" min-width="120" align="center" />
         <el-table-column prop="surname" label="姓氏" width="120" align="center" />
         <el-table-column prop="_key" label="卷ID" width="120" align="center" />
-        <el-table-column prop="volumeNumber" label="卷名" width="120" align="center" />
         <el-table-column prop="internalSerialNumber" label="卷序号" width="120" align="center" />
+        <el-table-column prop="volumeNumber" label="卷名" width="120" align="center" />
         <el-table-column prop="images" label="页码" width="120" align="center" />
         <el-table-column label="操作" fixed="right" width="300" align="center">
           <template #default="scope">
