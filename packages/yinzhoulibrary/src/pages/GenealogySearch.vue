@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
 import { catalog } from '../util/api';
-import { ElLoading } from 'element-plus';
+import { ElLoading, ElMessage } from 'element-plus';
 import { getQueryVariable, createMsg } from '../util/ADS';
 import HeaderModule from '../components/HeaderModule.vue';
 import ScrollModule from '../components/ScrollModule.vue';
@@ -17,13 +17,13 @@ const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const GCResolverFrontEnd = async () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
-  });
+  // const loading = ElLoading.service({
+  //   lock: true,
+  //   text: 'Loading',
+  //   background: 'rgba(0, 0, 0, 0.7)',
+  // });
   const result = await catalog.GCResolverFrontEnd(SearchParameters.value);
-  loading.close();
+  // loading.close();
   if(result.status == 200){
     statisticsData.value = result.data;
   }else{
@@ -64,6 +64,17 @@ const h = ref(1100);
 
 const handleSearch = (data) => {
   data ? SearchParameters.value[data.p] = SearchParameters.value[data.p] === data.v ? '' : data.v : null;
+
+  if(SearchParameters.value.content){
+    if(SearchParameters.value.surname){
+
+    }else{
+      return ElMessage({
+        message: '全文关键字 检索必填 姓氏',
+        type: 'warning',
+      });
+    }
+  }
 
   pagination.reset();
   refresh(SearchParameters.value);
@@ -108,6 +119,22 @@ const [tableData, refresh, loading, pagination] = useTable(catalog.searchGCFront
     },
     immediate: true
   });
+
+let load = '';
+
+watch(loading, (nv, ov) => {
+  console.log(nv);
+  if(nv){
+    load = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.7)',
+    });
+  }else{
+    load ? load.close() : null;
+    load = '';
+  }
+});
 
 const goBack = () => {
   router.push('/');
