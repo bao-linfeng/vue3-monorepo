@@ -9,6 +9,8 @@ export const useGlobalStore = defineStore('global', () => {
   const isResize = ref(0);
   const activeKey = ref('');
   const activeLevel = ref('0');
+  const imageSerialNumber = ref([]);
+  const isShowImage = ref(false);
 
   const saveProperyValue = (data, f = false) => {
     switch(data.label){
@@ -30,6 +32,12 @@ export const useGlobalStore = defineStore('global', () => {
       case 'activeLevel':
         activeLevel.value = data.value;
         break;
+      case 'imageSerialNumber':
+        imageSerialNumber.value = data.value;
+        break;
+      case 'isShowImage':
+        isShowImage.value = data.value;
+        break;
       default:
         console.log('未定义属性');
     }
@@ -45,6 +53,8 @@ export const useGlobalStore = defineStore('global', () => {
     isResize,
     activeKey,
     activeLevel,
+    imageSerialNumber,
+    isShowImage,
     saveProperyValue,
   };
 });

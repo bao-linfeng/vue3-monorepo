@@ -379,7 +379,7 @@ onMounted(() => {
         <el-table-column prop="place" label="谱籍地" min-width="180" align="center" />
         <el-table-column prop="authors" label="作者" width="120" align="center" />
         <el-table-column prop="volume" label="总卷数" width="120" align="center" />
-        <el-table-column prop="lostVolume" label="缺卷" width="120" align="center" />
+        <el-table-column prop="lostVolume" label="缺卷说明" width="120" align="center" />
         <el-table-column prop="singleOrTwo" label="单双页" width="120" align="center" />
         <el-table-column prop="hasVolume" label="实拍册数" width="120" align="center" />
         <el-table-column prop="imageCount" label="影像页" width="120" align="center" />

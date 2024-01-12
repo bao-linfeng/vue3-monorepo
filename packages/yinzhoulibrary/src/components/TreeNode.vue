@@ -22,8 +22,9 @@ onMounted(() => {
 });
 
 const handleClickNode = (data) => {
-    console.log(data.BirthDate, data.DeathDate);
+    console.log(data);
     saveProperyValue({'label': 'activeKey', 'value': data._key});
+    saveProperyValue({'label': 'imageSerialNumber', 'value': data.coordinateArray});
 }
 
 const expanded = ref(true);

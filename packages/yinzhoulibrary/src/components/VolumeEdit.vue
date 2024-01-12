@@ -35,7 +35,7 @@ const remoteMethod = (e) => {
     if(form.value.genealogyName){
         searchGenealogyName(form.value.genealogyName);
     }else{
-        
+        handleClear();
     }
 }
 
