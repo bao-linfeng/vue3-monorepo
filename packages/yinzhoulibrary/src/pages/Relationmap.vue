@@ -353,7 +353,7 @@ onMounted(() => {
                <el-option
                   v-for="item in pedigreeList"
                   :key="item._key"
-                  :label="item.title"
+                  :label="item.title+'-'+item.ancestorName"
                   :value="item._key"
                />
             </el-select>
@@ -397,6 +397,10 @@ onMounted(() => {
                <i>{{detail.Given || '-'}}</i>
             </div>
             <div class="node-detail">
+               <label for="">别名</label>
+               <i>{{detail.Alias || '-'}}</i>
+            </div>
+            <div class="node-detail">
                <label for="">性别</label>
                <i>{{detail.Sex == 'male' ? '男' : '女'}}</i>
             </div>
@@ -418,15 +422,19 @@ onMounted(() => {
             </div>
             <div class="node-detail">
                <label for="">生于</label>
-               <i>{{detail.BirthDate || '-'}}</i>
+               <i>{{detail.BirthDate ? detail.BirthDate.replace(/['生於']/g, '') : '-'}}</i>
             </div>
             <div class="node-detail">
                <label for="">卒于</label>
-               <i>{{detail.DeathDate || '-'}}</i>
+               <i>{{detail.DeathDate ? detail.DeathDate.replace(/['卒於']/g, '') : '-'}}</i>
+            </div>
+            <div class="node-detail">
+               <label for="">葬于</label>
+               <i>{{detail.Tomb || '-'}}</i>
             </div>
             <div class="node-detail">
                <label for="">传记</label>
-               <i>{{detail.Biography || '-'}}</i>
+               <i class="Biography" :title="detail.Biography">{{detail.Biography || '-'}}</i>
             </div>
             <div class="node-detail" v-if="detail._key === rootKey && type == 1">
                <label for="">关系</label>
@@ -522,6 +530,12 @@ onMounted(() => {
       }
       i{
          width: calc(100% - 70px);
+         &.Biography{
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            -webkit-line-clamp: 5;
+         }
       }
       .links-box{
          width: calc(100% - 70px);

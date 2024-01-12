@@ -46,18 +46,21 @@ const SearchParameters = ref({
   'publish': '',
   'authors': '',
   'place': '',
+  'personName': '',
   'content': '',
   'hasImage': '',
   'hasIndex': '',
 });
 
 const searchParameterList = ref([
+  {'label': '谱ID', 'value': 'gcKey'},
   {'label': '姓氏', 'value': 'surname'},
   {'label': '谱名', 'value': 'genealogyName'},
   {'label': '谱籍地', 'value': 'place'},
   {'label': '堂号', 'value': 'hall'},
   {'label': '作者', 'value': 'authors'},
   {'label': '出版年', 'value': 'publish'},
+  {'label': '人名', 'value': 'personName'},
   {'label': '全文关键字', 'value': 'content'},
 ]);
 const h = ref(1100);
@@ -65,12 +68,32 @@ const h = ref(1100);
 const handleSearch = (data) => {
   data ? SearchParameters.value[data.p] = SearchParameters.value[data.p] === data.v ? '' : data.v : null;
 
+  console.log(SearchParameters.value);
+
+  if(SearchParameters.value.personName && SearchParameters.value.content){
+    return ElMessage({
+      message: '全文关键字 和 人名 不能同时检索',
+      type: 'warning',
+    });
+  }
+
   if(SearchParameters.value.content){
     if(SearchParameters.value.surname){
 
     }else{
       return ElMessage({
         message: '全文关键字 检索必填 姓氏',
+        type: 'warning',
+      });
+    }
+  }
+
+  if(SearchParameters.value.personName){
+    if(SearchParameters.value.surname){
+
+    }else{
+      return ElMessage({
+        message: '人名 检索必填 姓氏',
         type: 'warning',
       });
     }
@@ -92,7 +115,7 @@ const handleClickAction = (row, t) => {
     window.open('/ImageView?id='+row._key+'&genealogyName='+row.genealogyName+'&volumeKey='+row.firstVolumeKey+'&page='+(row.indexImagePage + 1)+'&content='+SearchParameters.value.content+'&isText=1');
   }
   if(t === 'tree'){
-    window.open('/Relationmap?id='+row._key+'&genealogyName='+row.genealogyName+'&content='+SearchParameters.value.content);
+    window.open('/Relationmap?id='+row._key+'&genealogyName='+row.genealogyName+'&content='+SearchParameters.value.personName);
   }
 }
 
@@ -234,7 +257,7 @@ onMounted(() => {
               <template #default="scope">
                 <button class="btn" @click="handleClickAction(scope.row, 'look')">查看</button>
                 <button class="btn" v-if="scope.row.hasImage == 1" @click="handleClickAction(scope.row, 'image')">影像</button>
-                <button class="btn" v-if="scope.row.hasIndex == 1" @click="handleClickAction(scope.row, 'text')">全文</button>
+                <button class="btn" v-if="scope.row.hasIndexNew == 1" @click="handleClickAction(scope.row, 'text')">全文</button>
                 <button class="btn" v-if="scope.row.hasTreeNew == 1" @click="handleClickAction(scope.row, 'tree')">Tree</button>
               </template>
             </el-table-column>

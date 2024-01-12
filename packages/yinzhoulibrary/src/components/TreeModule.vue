@@ -61,7 +61,7 @@ const handleClickLevel = (data) => {
         cursor: pointer;
         margin-bottom: 40px;
         &.active{
-            color: #f00;
+            color: #C9A470;
         }
     }
     .generation-h{
