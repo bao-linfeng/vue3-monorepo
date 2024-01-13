@@ -24,6 +24,7 @@ onMounted(() => {
 
 const handleClickLevel = (data) => {
     saveProperyValue({'label': 'activeKey', 'value': data._key});
+    saveProperyValue({'label': 'imageSerialNumber', 'value': data.coordinateArray});
 }
 
 const handleToggleBar = () => {
@@ -41,8 +42,8 @@ const handleToggleBar = () => {
         <div class="tree-box style1" :class="{active: isShowImage}">
             <TreeNode :node="treeData" />
         </div>
-        <!-- <i class="toggle-image-bar" @click="handleToggleBar"></i>
-        <LookImage v-show="isShowImage" /> -->
+        <i class="toggle-image-bar" @click="handleToggleBar"></i>
+        <LookImage v-show="isShowImage" />
     </section>
 </template>
 

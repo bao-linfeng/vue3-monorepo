@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
 import { catalog, pedigreeApi } from '../util/api';
-import { getQueryVariable, createMsg } from '../util/ADS';
+import { getQueryVariable, createMsg, scrollIntoView } from '../util/ADS';
 import { ElLoading } from 'element-plus';
 import cover from '../assets/cover.svg';
 import TreeModule from '../components/TreeModule.vue';
@@ -81,6 +81,7 @@ const getTotalTree = async (f = true) => {
                         '_key': data[i]._key,
                         'generation': data[i].generation,
                         'Generation': data[i].generation+startLevel-1,
+                        'coordinateArray': data[i].coordinateArray,
                      });
                   }
                }
@@ -255,6 +256,7 @@ const handleClickNode = (data, f = true) => {
    if(pedigreeKey.value == data.pedigreeKey){
       rootKey.value = data._key;
       saveProperyValue({'label': 'activeKey', 'value': rootKey.value});
+      saveProperyValue({'label': 'imageSerialNumber', 'value': data.coordinateArray});
       if(f){
          keyWord.value = '';
          nodes.value = [];
@@ -283,7 +285,7 @@ const handleScrollIntoView = (id) => {
    let timer = setTimeout(() => {
       clearTimeout(timer);
       timer = null;
-      document.getElementById(id+'').scrollIntoView();
+      scrollIntoView(id);
    }, 200);
 }
 
@@ -311,6 +313,7 @@ const handleClickTab = (data) => {
    }
    pedigreeKey.value = '';
    type.value = data.value;
+   saveProperyValue({'label': 'isShowImage', 'value': false});
 
    init();
 }
@@ -482,6 +485,7 @@ onMounted(() => {
       position: absolute;
       top: 76px;
       left: 0;
+      position: relative;
       width: calc(100% - 380px);
       height: 100%;
    }

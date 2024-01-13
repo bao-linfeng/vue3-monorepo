@@ -179,6 +179,10 @@ function formattedDate(timestamp){
     return formattedDate
 }
 
+const scrollIntoView = (id) => {
+    document.getElementById(id+'').scrollIntoView();
+}
+
 export {
     getQueryVariable,
     setValue,
@@ -189,4 +193,5 @@ export {
     zipFiles,
     createMsg,
     formattedDate,
+    scrollIntoView,
 }

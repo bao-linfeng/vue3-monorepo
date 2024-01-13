@@ -198,6 +198,9 @@ const imageApi = {
   imageOcrResult(param) {// 影像页oc结果
     return request.get('/image/imageOcrResult', param);
   },
+  gcImageList(param) {// 谱影像页key列表
+    return request.get('/image/gcImageList', param);
+  },
 };
 
 const pedigreeApi = {

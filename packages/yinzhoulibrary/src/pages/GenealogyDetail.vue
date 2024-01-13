@@ -48,7 +48,7 @@ onMounted(() => {
         <section class="main-section marginT20">
             <aside class="aside">
               <img class="cover" src="../assets/book-detail.png" />
-              <p class="name">{{detail.genealogyName}}</p>
+              <p class="name">{{detail.genealogyName ? detail.genealogyName.replace(/[\（\）\(\)]/g, '') : ''}}</p>
               <el-button v-if="detail.hasIndex == 1" class="btn" type="primary" @click="handleView('1')"><img class="icon" src="../assets/全文.svg"><i>全文</i></el-button>
               <el-button v-if="detail.hasImage == 1" class="btn" type="primary" @click="handleView('')"><img class="icon" src="../assets/影像.svg"><i>影像</i></el-button>
             </aside>
@@ -102,7 +102,7 @@ onMounted(() => {
           position: absolute;
           top: 55px;
           left: 65px;
-          bottom: 100px;
+          bottom: 130px;
           text-align: center;
           color: #fff;
           width: 20px;

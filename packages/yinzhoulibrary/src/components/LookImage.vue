@@ -3,14 +3,14 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
-import { setValue } from '../util/ADS.js';
+import { setValue, scrollIntoView, getQueryVariable } from '../util/ADS.js';
 import { catalog, imageApi, volumeApi, baseURL } from '../util/api';
 import { useDetail } from '../composables/useDetail.js';
 
 const router = useRouter();
 
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, activeLevel, imageSerialNumber } = storeToRefs(global);
+const { userInfo, pathActive, orgMemberInfo, token, activeLevel, imageSerialNumber, isShowImage } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const props = defineProps({
@@ -18,37 +18,57 @@ const props = defineProps({
     generation: Array,
 });
 
+const gcKey = ref(getQueryVariable('id'));
+const page = ref(1);
+const limit = ref(10);
+const currentList = ref([]);
+
+const onPageChange = (val) => {
+    page.value = val;
+    currentList.value = imageList.value.slice((page.value - 1)*limit.value, page.value*limit.value);
+}
+
 // 影像列表模块
-const [imageList, refreshImageList, , total] = useDetail(imageApi.getImageList, {'vKey': '9291243756'},
+const [imageList, refreshImageList, , total] = useDetail(imageApi.gcImageList, {'gcKey': gcKey.value},
   {
     immediate: true
   });
 
 watch(imageList, (nv, ov) => {
-    console.log(nv);
+    currentList.value = imageList.value.slice((page.value - 1)*limit.value, page.value*limit.value);
 });
 
 watch(imageSerialNumber, (nv, ov) => {
     console.log(nv);
     if(nv && nv.length){
         serialNumber.value = nv[0];
-        document.getElementById(serialNumber.value).scrollIntoView();
+
+        handleChange();
+    }else{
+        serialNumber.value = '';
     }
 });
 
 const serialNumber = ref('');
 
-// watch(serialNumber, (nv, ov) => {
-//     document.getElementById(serialNumber.value).scrollIntoView();
-// });
-
 const handleChange = () => {
-    document.getElementById(serialNumber.value).scrollIntoView();
+    if(isShowImage.value){
+        page.value = Math.ceil(serialNumber.value.substr(5)/limit.value);
+        currentList.value = imageList.value.slice((page.value - 1)*limit.value, page.value*limit.value);
+
+        let timer = setTimeout(() => {
+            clearTimeout(timer);
+            timer = null;
+            scrollIntoView(serialNumber.value);
+        }, 200);
+    }
 }
 
 const handleToggleBar = () => {
     saveProperyValue({'label': 'isShowImage', 'value': false});
 }
+
+const h = ref(window.innerHeight - 170);
 
 onMounted(() => {
     
@@ -62,19 +82,32 @@ onMounted(() => {
             <h3 class="">家谱影像</h3>
             <el-select v-model="serialNumber" @change="handleChange" class="w150" placeholder="影像序号">
                 <el-option
-                v-for="item in imageSerialNumber"
-                :key="item"
+                v-for="(item, index) in imageSerialNumber"
+                :key="index"
                 :label="item"
                 :value="item"
                 />
             </el-select>
         </header>
-        <section class="image-wrap style1">
-            <div class="image-box" v-for="(item, index) in imageList" :key="index" :id="item.serialNumber">
-                <img class="image" :src="baseURL+'/nbyz/imageFile/9291240794/001/'+item.serialNumber+'.jpg'" alt="">
-                <i class="box" v-if="imageSerialNumber.indexOf(item.serialNumber) > -1"></i>
+        <div class="image-wrap style1" :style="{height: h+'px'}">
+            <div class="image-box" v-for="(item, index) in currentList" :key="index" :id="item.serialNumber">
+                <img class="image" :src="baseURL+'/nbyz/imageFile/'+gcKey+'/'+item.internalSerialNumber+'/'+item.serialNumber+'.jpg'" alt="">
+                <p>{{item.serialNumber}}</p>
+                <i class="box" v-if="imageSerialNumber && imageSerialNumber.indexOf(item.serialNumber) > -1"></i>
             </div>
-        </section>
+        </div>
+        <footer class="footer">
+            <el-pagination
+                small
+                background
+                layout="prev, pager, next"
+                :pager-count="3"
+                :current-page="page"
+                :page-size="limit"
+                :total="total"
+                @current-change="onPageChange"
+            />
+        </footer>
         <i class="toggle-image-bar" @click="handleToggleBar"></i>
     </section>
 </template>
@@ -85,7 +118,7 @@ onMounted(() => {
     width: 240px;
     height: calc(100% - 20px);
     padding: 10px;
-    top: 67px;
+    top: 76px;
     left: 0;
     background-color: #999;
     .header{
@@ -96,24 +129,36 @@ onMounted(() => {
     }
     .image-wrap{
         position: relative;
-        height: calc(100% - 42px);
+        height: calc(100% - 102px);
+        height: 800px;
         overflow-y: auto;
         .image-box{
             position: relative;
             margin-bottom: 10px;
+            text-align: center;
             .image{
                 width: 100%;
+                display: inline-block;
             }
             .box{
                 position: absolute;
                 right: 10px;
-                bottom: 10px;
+                bottom: 30px;
                 width: 15px;
                 height: 15px;
                 border: 1px solid #1A365C;
                 background-color: #1A365C;
             }
         }
+    }
+    .footer{
+        background-color: #999;
+        height: 40px;
+        width: calc(100% - 20px);
+        padding:  0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
     .toggle-image-bar{
         position: absolute;
