@@ -205,8 +205,7 @@ const handleSearch = () => {
                 <el-table-column prop="originalName" :label="langData['文件名']" align="center" min-width="300" />
                 <el-table-column prop="indexOrgName" :label="langData['上传机构']" align="center" width="100" />
                 <el-table-column prop="userName" :label="langData['上传人']" align="center" width="100" />
-                <el-table-column prop="distributeOrgNameO" :label="langData['分发机构']" align="center" width="150" />
-                <!-- <el-table-column prop="createTime" :label="langData['创建时间']" align="center" width="120" /> -->
+                <el-table-column v-if="orgMemberInfo.englishName == 'FS' && orgMemberInfo.role <= 2" prop="distributeOrgNameO" :label="langData['分发机构']" align="center" width="150" />
                 <el-table-column prop="updateTime" :label="langData['更新时间']" align="center" width="120" />
                 <el-table-column :label="langData['操作']" fixed="right" width="80" align="center">
                     <template #default="scope">

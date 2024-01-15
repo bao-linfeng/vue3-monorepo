@@ -134,7 +134,6 @@ const tabList = ref([
 const changeTab = (data) => {
   tab.value = data.value;
   goRouter();
-  // router.push('/GenealogySearch?tab='+tab.value);
 }
 
 const isShow = ref(true);
