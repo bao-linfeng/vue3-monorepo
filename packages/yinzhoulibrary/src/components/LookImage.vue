@@ -10,7 +10,7 @@ import { useDetail } from '../composables/useDetail.js';
 const router = useRouter();
 
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, activeLevel, imageSerialNumber, isShowImage } = storeToRefs(global);
+const { userInfo, pathActive, token, activeLevel, imageSerialNumber, isShowImage } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const props = defineProps({
@@ -82,10 +82,10 @@ onMounted(() => {
             <h3 class="">家谱影像</h3>
             <el-select v-model="serialNumber" @change="handleChange" class="w150" placeholder="影像序号">
                 <el-option
-                v-for="(item, index) in imageSerialNumber"
-                :key="index"
-                :label="item"
-                :value="item"
+                    v-for="(item, index) in imageSerialNumber"
+                    :key="index"
+                    :label="item"
+                    :value="item"
                 />
             </el-select>
         </header>

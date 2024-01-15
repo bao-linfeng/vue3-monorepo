@@ -10,7 +10,7 @@ import GenealogyEdit from '../components/GenealogyEdit.vue';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, isResize } = storeToRefs(global);
+const { userInfo, pathActive, token, isResize } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const getDataList = async (f = true) => {

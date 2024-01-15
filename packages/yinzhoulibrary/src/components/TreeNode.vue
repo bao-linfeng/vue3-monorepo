@@ -10,7 +10,7 @@ import close from '../assets/close-circle.svg';
 const router = useRouter();
 
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, activeKey } = storeToRefs(global);
+const { userInfo, pathActive, token, activeKey } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const props = defineProps({

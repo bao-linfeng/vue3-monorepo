@@ -43,7 +43,6 @@ onMounted(() => {
 
 <template>
     <header class="header">
-      <!-- <img class="logo" src="../assets/logo.png" @click="goRouter('/')" /> -->
       <nav class="nav">
         <router-link to="/GenealogySearch">检索中心</router-link>
         <router-link v-if="token" class="marginL20" to="/GenealogyManage">管理中心</router-link>

@@ -10,7 +10,7 @@ import { useTable } from '../composables/useTable.js';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, isResize } = storeToRefs(global);
+const { userInfo, pathActive, token, isResize } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const getOperationLogType = async () => {

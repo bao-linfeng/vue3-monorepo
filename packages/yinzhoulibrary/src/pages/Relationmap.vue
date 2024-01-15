@@ -12,7 +12,7 @@ import RadialCharts from '../components/RadialCharts.vue';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, activeKey, activeLevel } = storeToRefs(global);
+const { userInfo, pathActive, token, activeKey, activeLevel } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const zoomChartsData = ref({});

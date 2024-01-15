@@ -13,7 +13,7 @@ import { useTable } from '../composables/useTable.js';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
+const { userInfo, pathActive, token } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const GCResolverFrontEnd = async () => {
@@ -39,17 +39,17 @@ const statisticsData = ref({
 });
 
 const SearchParameters = ref({
-  'gcKey': '',
-  'genealogyName': '',
+  'gcKey': getQueryVariable('gcKey') || '',
+  'genealogyName': getQueryVariable('genealogyName') ? decodeURIComponent(getQueryVariable('genealogyName')) : '',
   'surname': getQueryVariable('surname') ? decodeURIComponent(getQueryVariable('surname')) : '',
-  'hall': '',
-  'publish': '',
-  'authors': '',
-  'place': '',
-  'personName': '',
-  'content': '',
-  'hasImage': '',
-  'hasIndex': '',
+  'hall': getQueryVariable('hall') ? decodeURIComponent(getQueryVariable('hall')) : '',
+  'publish': getQueryVariable('publish') ? decodeURIComponent(getQueryVariable('publish')) : '',
+  'authors': getQueryVariable('authors') ? decodeURIComponent(getQueryVariable('authors')) : '',
+  'place': getQueryVariable('place') ? decodeURIComponent(getQueryVariable('place')) : '',
+  'personName': getQueryVariable('personName') ? decodeURIComponent(getQueryVariable('personName')) : '',
+  'content': getQueryVariable('content') ? decodeURIComponent(getQueryVariable('content')) : '',
+  'hasImage': getQueryVariable('hasImage') || '',
+  'hasIndex': getQueryVariable('hasIndex') || '',
 });
 
 const searchParameterList = ref([
@@ -69,6 +69,8 @@ const handleSearch = (data) => {
   data ? SearchParameters.value[data.p] = SearchParameters.value[data.p] === data.v ? '' : data.v : null;
 
   console.log(SearchParameters.value);
+
+  router.push('/GenealogySearch?gcKey='+SearchParameters.value.gcKey+'&surname='+SearchParameters.value.surname+'&genealogyName='+SearchParameters.value.genealogyName+'&place='+SearchParameters.value.place+'&hall='+SearchParameters.value.hall+'&authors='+SearchParameters.value.authors+'&publish='+SearchParameters.value.publish+'&personName='+SearchParameters.value.personName+'&content='+SearchParameters.value.content+'&hasImage='+SearchParameters.value.hasImage+'&hasIndex='+SearchParameters.value.hasIndex);
 
   if(SearchParameters.value.personName && SearchParameters.value.content){
     return ElMessage({

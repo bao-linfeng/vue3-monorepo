@@ -1,10 +1,10 @@
 import axios from 'axios';
-import {createMsg} from './ADS.js'
-let baseURL = 'https://nbyzdata.qingtime.cn';
-let uploadFileURL = '';
+import {createMsg} from './ADS.js';
+import router from '../router/index.js';
 
+let baseURL = 'https://nbyzdata.qingtime.cn';
 if(window.location.origin.indexOf('nbyz.1jiapu.com') > -1 || window.location.origin.indexOf('jiapu.yzlib.com.cn') > -1){
-  baseURL = 'https://nbyzdata.1jiapu.com'
+  baseURL = 'https://nbyzdata.1jiapu.com';
 }
 
 axios.interceptors.response.use(
@@ -12,10 +12,8 @@ axios.interceptors.response.use(
     switch (response.data.statusCode || response.data.status) {
       case '701':
         localStorage.clear();
-        // createMsg('登录失效');
         break;
       case '201':
-        // createMsg(response.data.msg)
         break;
       default:
     }
@@ -35,10 +33,9 @@ const request = {
         .then((response) => {
           
           if (response.data.status == 701) {
-            // 验证码失效 => 跳转 验证码校验UI 2022.07.02 -> baolf
+            // 验证码失效 => 跳转 验证码校验UI 2024.01.15 -> baolf
             createMsg('Token失效，请重新登录');
-            window.location.href = '/GenealogySearch?isLogin=1';
-            // router.push('/authentication');
+            router.push('/GenealogySearch?isLogin=1');
           }else{
             resolve(response.data);
           }

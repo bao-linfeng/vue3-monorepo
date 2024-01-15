@@ -10,7 +10,7 @@ import cover from '../assets/cover.svg';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, activeKey, activeLevel } = storeToRefs(global);
+const { userInfo, pathActive, token, activeKey, activeLevel } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const props = defineProps({
@@ -82,7 +82,7 @@ const initZoomCharts = (data, rootKey) => {
       },
       layout: {
          nodeSpacing: 120,
-         mode: 'dynamic', //radial dynamic      
+         mode: 'radial', //radial dynamic      
       },
       nodeMenu: {
          enabled: false,           

@@ -11,7 +11,7 @@ import { useDetail } from '../composables/useDetail.js';
 
 const router = useRouter();
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token } = storeToRefs(global);
+const { userInfo, pathActive, token } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const dataKey = ref(getQueryVariable('id'));

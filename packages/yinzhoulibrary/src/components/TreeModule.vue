@@ -10,7 +10,7 @@ import LookImage from './LookImage.vue';
 const router = useRouter();
 
 const global = useGlobalStore();
-const { userInfo, pathActive, orgMemberInfo, token, activeLevel, isShowImage } = storeToRefs(global);
+const { userInfo, pathActive, token, activeLevel, isShowImage } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const props = defineProps({
