@@ -16,7 +16,7 @@ watch(() => route, (to, from) => {
   saveProperyValue({'label': 'pathActive', 'value': to.path});
 },{deep: true});
 
-const NoAnchor = ['/', '/GenealogySearch', '/GenealogyDetail', '/ImageView', '/Relationmap'];
+const NoAnchor = ['/', '/GenealogySearch', '/GenealogyDetail', '/ImageView', '/Relationmap', '/Login'];
 
 onMounted(() => {
   window.addEventListener('resize', (e) => {

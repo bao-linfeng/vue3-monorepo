@@ -63,17 +63,17 @@ const changeProperty = (p, v) =>{
 // 分面器
 .statistics{
   position: relative;
-  height: calc(100% - 45px);
-  padding: 20px;
+  height: calc(100% - 20px);
+  padding: 10px;
   font-size: 16px;
   .box{
-    height: 260px;
-    margin-top: 20px;
+    height: calc(25% - 10px);
+    margin-top: 10px;
     .title-box{
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       img{
         cursor: pointer;
         height: 14px;
@@ -89,7 +89,7 @@ const changeProperty = (p, v) =>{
     font-weight: normal;
   }
   .list-wrap{
-    height: calc(100% - 34px);
+    height: calc(100% - 24px);
     overflow-y: hidden;
     &.active{
       overflow-y: auto;

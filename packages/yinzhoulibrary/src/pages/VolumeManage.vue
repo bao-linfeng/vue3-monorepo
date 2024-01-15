@@ -96,6 +96,9 @@ const handleSearch = () => {
 
 const handleClickAction = (row, t) => {
   console.log(row, t);
+  if(t === 'lookImage'){
+    window.open('/ImageView?id='+row.gcKey+'&genealogyName='+row.genealogyName+'&volumeKey='+row._key+'&page=1');
+  }
   if(t === 'linkImages'){
     
   }
@@ -175,8 +178,9 @@ onMounted(() => {
         <el-table-column prop="internalSerialNumber" label="卷序号" width="120" align="center" />
         <el-table-column prop="volumeNumber" label="卷名" width="120" align="center" />
         <el-table-column prop="images" label="页码" width="120" align="center" />
-        <el-table-column label="操作" fixed="right" width="300" align="center">
+        <el-table-column label="操作" fixed="right" width="350" align="center">
           <template #default="scope">
+            <el-button v-if="scope.row.images" size="small" type="primary" @click="handleClickAction(scope.row, 'lookImage')">影像</el-button>
             <el-button size="small" type="primary" @click="handleClickAction(scope.row, 'linkImages')">关联影像</el-button>
             <el-button size="small" type="primary" @click="handleClickAction(scope.row, 'linkIndex')">关联全文</el-button>
             <el-button size="small" type="primary" @click="handleClickAction(scope.row, 'edit')">编辑</el-button>

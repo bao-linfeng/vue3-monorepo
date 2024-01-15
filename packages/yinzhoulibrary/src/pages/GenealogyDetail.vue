@@ -15,14 +15,29 @@ const { userInfo, pathActive, token } = storeToRefs(global);
 const { saveProperyValue } = global;
 
 const dataKey = ref(getQueryVariable('id'));
+
 const field_main = ref([
+  {'fieldMeans': '谱ID', 'fieldName': '_key'},
+  {'fieldMeans': '谱名', 'fieldName': 'genealogyName'},
   {'fieldMeans': '姓氏', 'fieldName': 'surname'},
-  {'fieldMeans': '出版年', 'fieldName': 'publish'},
   {'fieldMeans': '堂号', 'fieldName': 'hall'},
+  {'fieldMeans': '出版年', 'fieldName': 'publish'},
+  {'fieldMeans': '公元年', 'fieldName': 'publishAD'},
+  {'fieldMeans': '谱籍地', 'fieldName': 'place'},
   {'fieldMeans': '作者', 'fieldName': 'authors'},
+  {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
+  {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
+  {'fieldMeans': '先祖名人', 'fieldName': 'celebrity'},
+  {'fieldMeans': '版本类型', 'fieldName': 'version'},
   {'fieldMeans': '总卷数', 'fieldName': 'volume'},
-  {'fieldMeans': '页数', 'fieldName': 'imageCount'},
-  {'fieldMeans': '摘要', 'fieldName': 'explain'},
+  {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
+  {'fieldMeans': '单双页', 'fieldName': 'singleOrTwo'},
+  {'fieldMeans': '实拍册数', 'fieldName': 'hasVolume'},
+  {'fieldMeans': '影像页', 'fieldName': 'images'},
+  {'fieldMeans': '说明', 'fieldName': 'explain'},
+  {'fieldMeans': '馆藏地', 'fieldName': 'owner'},
+  {'fieldMeans': '载体形态', 'fieldName': 'carrierType'},
+  {'fieldMeans': '入库编号', 'fieldName': 'inStoreSerialName'},
 ]);
 
 const handleView = (i) => {
@@ -42,7 +57,7 @@ onMounted(() => {
 
 <template>
   <section class="genealogy-detail-wrap">
-    <HeaderModule />
+    <!-- <HeaderModule /> -->
     <main class="main">
         <h3 class="title">家谱简介</h3>
         <section class="main-section marginT20">
@@ -61,7 +76,7 @@ onMounted(() => {
               <ul class="detail-box">
                 <li class="li" v-for="(item, index) in field_main" :key="index">
                   <p>{{item.fieldMeans}}</p>
-                  <span>{{detail[item.fieldName]}}</span>
+                  <span>{{detail[item.fieldName] || '-'}}</span>
                 </li>
               </ul>
             </article>
@@ -74,7 +89,8 @@ onMounted(() => {
 .genealogy-detail-wrap {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 80px);
+  padding-top: 80px;
   background: #fffcf9 url('../assets/detail_bg.png') 0 0 no-repeat;
   background-size: cover;
   .main{
@@ -130,7 +146,7 @@ onMounted(() => {
         }
         .detail-box{
           width: 100%;
-          height: 372px;
+          height: 462px;
           display: flex;
           flex-wrap: wrap;
           flex-direction: column;
@@ -139,11 +155,11 @@ onMounted(() => {
             display: flex;
             align-items: center;
             font-size: 22px;
-            margin-top: 30px;
+            margin-top: 10px;
             p{
               font-weight: bold;
               margin-right: 5px;
-              width: 80px;
+              width: 120px;
             }
           }
         }

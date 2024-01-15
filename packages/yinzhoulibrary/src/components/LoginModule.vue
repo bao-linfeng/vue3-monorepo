@@ -31,7 +31,8 @@ const loginByPassword = async () => {
   if(result.status == 200){
     saveProperyValue({'label': 'token', 'value': result.data.token}, true);
     saveProperyValue({'label': 'userInfo', 'value': result.data}, 'dep');
-    close();
+    // close();
+    router.push('/GenealogyManage');
   }else{
     createMsg(result.msg);
   }

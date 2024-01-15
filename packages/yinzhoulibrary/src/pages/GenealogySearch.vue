@@ -63,14 +63,18 @@ const searchParameterList = ref([
   {'label': '人名', 'value': 'personName'},
   {'label': '全文关键字', 'value': 'content'},
 ]);
-const h = ref(1100);
+const h = ref(window.innerHeight - 76 - 96 - 64 - 50 - 32);
+
+const goRouter = () => {
+  router.push('/GenealogySearch?gcKey='+SearchParameters.value.gcKey+'&surname='+SearchParameters.value.surname+'&genealogyName='+SearchParameters.value.genealogyName+'&place='+SearchParameters.value.place+'&hall='+SearchParameters.value.hall+'&authors='+SearchParameters.value.authors+'&publish='+SearchParameters.value.publish+'&personName='+SearchParameters.value.personName+'&content='+SearchParameters.value.content+'&hasImage='+SearchParameters.value.hasImage+'&hasIndex='+SearchParameters.value.hasIndex+'&tab='+tab.value);
+}
 
 const handleSearch = (data) => {
   data ? SearchParameters.value[data.p] = SearchParameters.value[data.p] === data.v ? '' : data.v : null;
 
   console.log(SearchParameters.value);
 
-  router.push('/GenealogySearch?gcKey='+SearchParameters.value.gcKey+'&surname='+SearchParameters.value.surname+'&genealogyName='+SearchParameters.value.genealogyName+'&place='+SearchParameters.value.place+'&hall='+SearchParameters.value.hall+'&authors='+SearchParameters.value.authors+'&publish='+SearchParameters.value.publish+'&personName='+SearchParameters.value.personName+'&content='+SearchParameters.value.content+'&hasImage='+SearchParameters.value.hasImage+'&hasIndex='+SearchParameters.value.hasIndex);
+  goRouter();
 
   if(SearchParameters.value.personName && SearchParameters.value.content){
     return ElMessage({
@@ -129,7 +133,8 @@ const tabList = ref([
 
 const changeTab = (data) => {
   tab.value = data.value;
-  router.push('/GenealogySearch?tab='+tab.value);
+  goRouter();
+  // router.push('/GenealogySearch?tab='+tab.value);
 }
 
 const isShow = ref(true);
@@ -186,7 +191,7 @@ onMounted(() => {
 
 <template>
   <section class="genealogy-wrap">
-    <HeaderModule />
+    <!-- <HeaderModule /> -->
     <img class="image-title" @click="goBack" src="../assets/标题.svg" />
     <main class="main">
       <!-- search -->
@@ -254,7 +259,6 @@ onMounted(() => {
             <el-table-column prop="place" label="谱籍地" min-width="120" align="center" />
             <el-table-column prop="authors" label="作者" width="120" align="center" />
             <el-table-column prop="explain" label="说明" width="120" align="center" />
-            <el-table-column prop="memo" label="备注" width="120" align="center" />
             <el-table-column label="操作" fixed="right" width="180" align="center">
               <template #default="scope">
                 <button class="btn" @click="handleClickAction(scope.row, 'look')">查看</button>
@@ -289,9 +293,9 @@ onMounted(() => {
       </section>
     </main>
     <!-- footer -->
-    <footer class="footer">
+    <!-- <footer class="footer">
       <img class="logo" src="../assets/logo.png" />
-    </footer>
+    </footer> -->
   </section>
 </template>
 
@@ -299,24 +303,26 @@ onMounted(() => {
 .genealogy-wrap {
   position: relative;
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   background: #fffcf9 url('../assets/bg.png') 50% 0 no-repeat;
   background-size: 100% auto;
   color: #333;
   .image-title{
     display: block;
-    margin: 0 auto 34px auto;
+    margin: 0 auto;
+    padding: 10px 0;
   }
   .main{
+    position: relative;
     width: 100%;
-    padding-bottom: 30px;
+    height: calc(100% - 76px);
     .search-wrap{
       width: 1400px;
       margin: 0 auto;
-      padding: 30px;
+      padding: 10px 30px;
       background: rgba(248, 248, 248, 0.75) url('../assets/Rectangle.png') 50% 50% no-repeat;
       background-size: cover;
-      height: 80px;
+      height: 74px;
       display: flex;
       justify-content: space-between;
       align-content: space-between;
@@ -328,7 +334,7 @@ onMounted(() => {
       justify-content: space-between;
       align-items: center;
       width: 1460px;
-      margin: 30px auto 10px auto;
+      margin: 10px auto;
       color: #7C4F11;
       font-size: 26px;
       .left{
@@ -353,19 +359,23 @@ onMounted(() => {
       }
     }
     .data-section{
+      position: relative;
       width: 1460px;
+      height: calc(100% - 158px);
       margin: 0 auto;
       display: flex;
       .aside{
         position: relative;
         padding-top: 25px;
         width: 240px;
+        height: calc(100% - 25px);
         background-color: #fff;
       }
       .article{
         position: relative;
-        padding: 30px 20px 20px 20px;
+        padding: 30px 20px 0 20px;
         width: calc(100% - 300px);
+        height: calc(100% - 30px);
         background-color: #fff;
         margin-left: 20px;
         &.active{
@@ -381,7 +391,7 @@ onMounted(() => {
           cursor: pointer;
         }
         .pagination-wrap{
-          margin-top: 30px;
+          margin-top: 8px;
           display: flex;
           align-items: center;
           justify-content: flex-end;
@@ -405,15 +415,16 @@ onMounted(() => {
 .catalog-wrap{
   position: relative;
   width: 100%;
-  height: 1100px;
+  height: calc(100% - 45px);
   font-size: 20px;
+  overflow-y: auto;
   .catalog-box{
     position: relative;
     height: 342px;
     width: 217px;
     color: #333;
     display: inline-flex;
-    margin: 20px 36px 0 36px;
+    margin: 0 36px 20px 36px;
     background: url('../assets/book.png') 50% 50% no-repeat;
     background-size: cover;
     cursor: pointer;

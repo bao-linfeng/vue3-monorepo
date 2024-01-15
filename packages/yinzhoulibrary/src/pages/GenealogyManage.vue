@@ -169,6 +169,30 @@ const handleClickAction = (row, t) => {
   isShow.value = t;
 }
 
+const field_main = ref([
+  {'fieldMeans': '谱ID', 'fieldName': '_key'},
+  {'fieldMeans': '谱名', 'fieldName': 'genealogyName'},
+  {'fieldMeans': '姓氏', 'fieldName': 'surname'},
+  {'fieldMeans': '堂号', 'fieldName': 'hall'},
+  {'fieldMeans': '出版年', 'fieldName': 'publish'},
+  {'fieldMeans': '公元年', 'fieldName': 'publishAD'},
+  {'fieldMeans': '谱籍地', 'fieldName': 'place'},
+  {'fieldMeans': '作者', 'fieldName': 'authors'},
+  {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
+  {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
+  {'fieldMeans': '先祖名人', 'fieldName': 'celebrity'},
+  {'fieldMeans': '版本类型', 'fieldName': 'version'},
+  {'fieldMeans': '总卷数', 'fieldName': 'volume'},
+  {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
+  {'fieldMeans': '单双页', 'fieldName': 'singleOrTwo'},
+  {'fieldMeans': '实拍册数', 'fieldName': 'hasVolume'},
+  {'fieldMeans': '影像页', 'fieldName': 'images'},
+  {'fieldMeans': '说明', 'fieldName': 'explain'},
+  {'fieldMeans': '馆藏地', 'fieldName': 'owner'},
+  {'fieldMeans': '载体形态', 'fieldName': 'carrierType'},
+  {'fieldMeans': '入库编号', 'fieldName': 'inStoreSerialName'},
+]);
+
 const handleCurrentChange = (data) => {
     page.value = data;
     getDataList(false);
@@ -371,21 +395,7 @@ onMounted(() => {
         border 
         :height="h"
         style="width: 100%">
-        <el-table-column prop="_key" label="谱ID" width="120" align="center" />
-        <el-table-column prop="genealogyName" label="谱名" min-width="150" align="center" />
-        <el-table-column prop="surname" label="姓氏" width="120" align="center" />
-        <el-table-column prop="hall" label="堂号" width="120" align="center" />
-        <el-table-column prop="publish" label="出版年" width="140" align="center" />
-        <el-table-column prop="place" label="谱籍地" min-width="180" align="center" />
-        <el-table-column prop="authors" label="作者" width="120" align="center" />
-        <el-table-column prop="volume" label="总卷数" width="120" align="center" />
-        <el-table-column prop="lostVolume" label="缺卷说明" width="120" align="center" />
-        <el-table-column prop="singleOrTwo" label="单双页" width="120" align="center" />
-        <el-table-column prop="hasVolume" label="实拍册数" width="120" align="center" />
-        <el-table-column prop="imageCount" label="影像页" width="120" align="center" />
-        <el-table-column prop="explain" label="说明" width="150" align="center" />
-        <el-table-column prop="carrierType" label="载体形态" width="120" align="center" />
-        <!-- <el-table-column prop="memo" label="备注" width="120" align="center" /> -->
+        <el-table-column v-for="(item, index) in field_main" :prop="item.fieldName" :label="item.fieldMeans" width="130" align="center" />
         <el-table-column label="操作" fixed="right" width="200" align="center">
           <template #default="scope">
             <el-button v-if="scope.row.hasImage === 1" size="small" type="primary" @click="handleClickAction(scope.row, 'lookImage')">影像</el-button>
