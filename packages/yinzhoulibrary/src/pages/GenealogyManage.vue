@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
 import { catalog, baseURL, uploadApi, pedigreeApi } from '../util/api';
 import { ElLoading, ElMessage } from 'element-plus';
-import { getQueryVariable, createMsg, initDownloadExcel, downliadLink } from '../util/ADS';
+import { getQueryVariable, createMsg, initDownloadExcel, downliadLink, thousands } from '../util/ADS';
 import GenealogyEdit from '../components/GenealogyEdit.vue';
 
 const router = useRouter();
@@ -27,7 +27,11 @@ const getDataList = async (f = true) => {
   }, SearchParameters.value));
   loading.close();
   if(result.status == 200){
-    tableData.value = result.result.list;
+    tableData.value = result.result.list.map((ele) => {
+      ele.images = thousands(ele.images);
+
+      return ele;
+    });
     total.value = result.result.total;
     f ? GCStatistics() : null;
   }else{
@@ -40,8 +44,8 @@ const GCStatistics = async () => {
     'token': token.value
   }, SearchParameters.value));
   if(result.status == 200){
-    volumeCount.value = result.result.volumeCount;
-    imageCount.value = result.result.imageCount;
+    volumeCount.value = thousands(result.result.volumeCount);
+    imageCount.value = thousands(result.result.imageCount);
   }else{
     ElMessage({
       message: result.msg,

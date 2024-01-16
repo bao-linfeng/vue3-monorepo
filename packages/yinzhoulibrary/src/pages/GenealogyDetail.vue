@@ -6,7 +6,7 @@ import { useGlobalStore } from '../store/global.js';
 import { catalog } from '../util/api';
 import { getQueryVariable, createMsg } from '../util/ADS';
 import { ElLoading } from 'element-plus';
-import HeaderModule from '../components/HeaderModule.vue';
+// import HeaderModule from '../components/HeaderModule.vue';
 import { useDetail } from '../composables/useDetail.js';
 
 const router = useRouter();

@@ -6,6 +6,7 @@ import { useGlobalStore } from '../store/global.js';
 import { setValue, createMsg } from '../util/ADS.js';
 import { catalog } from '../util/api';
 import { ElLoading, ElMessage } from 'element-plus';
+import DragModule from './DragModule.vue';
 
 const router = useRouter();
 
@@ -154,16 +155,31 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="genealogy-edit-section">
-        <header class="header">
+    <DragModule>
+        <template #header>
             <h3 class="title">{{!dataKey ? '新建' : '编辑'}}</h3>
-        </header>
-        <main class="main style1">
+        </template>
+        <template #main>
             <el-form :model="form" label-width="90px">
-                <el-form-item v-for="(item, index) in field_branch" :key="index" :label="item.fieldMeans+(item.required ? '*' : '')">
-                    <!-- v-if="['version', 'singleOrTwo'].indexOf(item.fieldName) === -1"  -->
-                    <el-input class="w200" v-if="['version', 'singleOrTwo', 'carrierType'].indexOf(item.fieldName) === -1" :type="item.type" :rows="3" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans" />
-                    <el-select class="w200" v-if="'version' === item.fieldName" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans">
+                <el-form-item 
+                    v-for="(item, index) in field_branch" 
+                    :key="index" 
+                    :label="item.fieldMeans+(item.required ? '*' : '')"
+                >
+                    <el-input 
+                        class="w200" 
+                        v-if="['version', 'singleOrTwo', 'carrierType'].indexOf(item.fieldName) === -1" 
+                        :type="item.type" 
+                        :rows="3" 
+                        v-model="form[item.fieldName]" 
+                        :placeholder="'请输入'+item.fieldMeans" 
+                    />
+                    <el-select 
+                        class="w200" 
+                        v-if="'version' === item.fieldName" 
+                        v-model="form[item.fieldName]" 
+                        :placeholder="'请输入'+item.fieldMeans"
+                    >
                         <el-option
                             v-for="item2 in versionList"
                             :key="item2.value"
@@ -171,7 +187,12 @@ onMounted(() => {
                             :value="item2.value"
                         />
                     </el-select>
-                    <el-select class="w200" v-if="'singleOrTwo' === item.fieldName" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans">
+                    <el-select 
+                        class="w200" 
+                        v-if="'singleOrTwo' === item.fieldName" 
+                        v-model="form[item.fieldName]" 
+                        :placeholder="'请输入'+item.fieldMeans"
+                    >
                         <el-option
                             v-for="item2 in singleOrTwoList"
                             :key="item2.value"
@@ -179,7 +200,12 @@ onMounted(() => {
                             :value="item2.value"
                         />
                     </el-select>
-                    <el-select class="w200" v-if="'carrierType' === item.fieldName" v-model="form[item.fieldName]" :placeholder="'请输入'+item.fieldMeans">
+                    <el-select 
+                        class="w200" 
+                        v-if="'carrierType' === item.fieldName" 
+                        v-model="form[item.fieldName]" 
+                        :placeholder="'请输入'+item.fieldMeans"
+                    >
                         <el-option
                             v-for="item2 in carrierTypeList"
                             :key="item2.value"
@@ -188,44 +214,18 @@ onMounted(() => {
                         />
                     </el-select>
                 </el-form-item>
-
                 <el-form-item v-if="!dataKey">
                     <el-checkbox v-model="isCreateVolume" label="按总卷册数自动生成卷册列表" />
                 </el-form-item>
             </el-form>
-        </main>
-        <footer class="footer">
+        </template>
+        <template #footer>
             <el-button type="primary" @click="handleSave">保存</el-button>
             <el-button @click="close(false)">取消</el-button>
-        </footer>
-    </section>
+        </template>
+    </DragModule>
 </template>
 
 <style scoped lang="scss">
-.genealogy-edit-section{
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px 50px;
-    box-shadow: 0 0 1px 2px #ddd;
-    border-radius: 10px;
-    z-index: 10;
-    background-color: #fff;
-    height: calc(100% - 80px);
-    .header{
-        text-align: center;
-        height: 50px;
-    }
-    .main{
-        height: calc(100% - 100px);
-        overflow-y: auto;
-    }
-    .footer{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 50px;
-    }
-}
+
 </style>

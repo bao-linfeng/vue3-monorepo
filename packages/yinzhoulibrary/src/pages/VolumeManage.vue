@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '../store/global.js';
 import { catalog, baseURL, volumeApi } from '../util/api';
 import { ElLoading } from 'element-plus';
-import { getQueryVariable, createMsg, initDownloadExcel } from '../util/ADS';
+import { getQueryVariable, createMsg, initDownloadExcel, thousands } from '../util/ADS';
 import VolumeEdit from '../components/VolumeEdit.vue';
 import ImageUpload from '../components/ImageUpload.vue';
 import IndexUpload from '../components/IndexUpload.vue';
@@ -32,7 +32,11 @@ const getVolumeList = async () => {
   });
   loading.close();
   if(result.status == 200){
-    tableData.value = result.result.list;
+    tableData.value = result.result.list.map((ele) => {
+      ele.images = thousands(ele.images);
+
+      return ele;
+    });
     total.value = result.result.total;
   }else{
     createMsg(result.msg);
@@ -47,7 +51,7 @@ const volumeStatistics = async () => {
     'volumeKey': volumeKey.value,
   });
   if(result.status == 200){
-    imageCount.value = result.result.imageCount;
+    imageCount.value = thousands(result.result.imageCount);
   }else{
     ElMessage({
       message: result.msg,
@@ -128,10 +132,6 @@ const handleClose = (data) => {
     handleSearch();
   }
   isShow.value = '';
-}
-
-const handleBatchUpdate = () => {
-
 }
 
 watch(isResize, () => {

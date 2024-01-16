@@ -41,6 +41,7 @@ const remoteMethod = (e) => {
 
 const handleClear = () => {
     gcList.value = [];
+    gcKey.value = '';
     isShow.value = false;
 }
 
