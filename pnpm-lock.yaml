@@ -36,6 +36,8 @@ importers:
 
   packages/jiapuindex: {}
 
+  packages/jiapusystem: {}
+
   packages/yinzhoulibrary: {}
 
 packages:

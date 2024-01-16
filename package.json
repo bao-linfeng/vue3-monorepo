@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "dev:jiapuindex": "vite packages/jiapuindex",
+    "dev:jiapusystem": "vite packages/jiapusystem",
     "dev:yinzhoulibrary": "vite packages/yinzhoulibrary",
     "build:jiapuindex": "vite build packages/jiapuindex",
+    "build:jiapusystem": "vite build packages/jiapusystem",
     "build:yinzhoulibrary": "vite build packages/yinzhoulibrary",
     "preview": "vite preview"
   },
