@@ -20,11 +20,11 @@ const logout = () => {
     saveProperyValue({'label': 'token', 'value': ''});
     saveProperyValue({'label': 'userInfo', 'value': ''});
     localStorage.clear();
-    router.push('/');
+    router.push('/Login');
 }
 
 const goHome = () => {
-    router.push('/GenealogySearch');
+    // router.push('/GenealogySearch');
 }
 
 const goRouter = (data) => {

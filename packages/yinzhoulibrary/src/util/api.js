@@ -35,7 +35,7 @@ const request = {
           if (response.data.status == 701) {
             // 验证码失效 => 跳转 验证码校验UI 2024.01.15 -> baolf
             createMsg('Token失效，请重新登录');
-            router.push('/GenealogySearch?isLogin=1');
+            router.push('/Login');
           }else{
             resolve(response.data);
           }
